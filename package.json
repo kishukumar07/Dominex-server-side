@@ -1,0 +1,34 @@
+{
+  "name": "dominex-server-side",
+  "version": "1.0.0",
+  "description": "**Dominex** is a next-gen social media platform built on **MERN** (MongoDB, Express.js, React.js, Node.js). It enables users to connect, share, and engage via posts, media, chats, and notifications. With real-time features, secure authentication, and a user-friendly UI, **Dominex** offers an immersive experience while ensuring privacy and security.",
+  "homepage": "https://github.com/kishukumar07/Dominex-server-side#readme",
+  "bugs": {
+    "url": "https://github.com/kishukumar07/Dominex-server-side/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kishukumar07/Dominex-server-side.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev":"nodemon index.js",
+    "start": "node index.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.2",
+    "morgan": "^1.10.0"
+  }
+}
