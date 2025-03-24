@@ -31,5 +31,5 @@ const createUser = async () => {
   };
      createUser();
 
-     
+    
      connectDB();  // Connect to MongoDB
