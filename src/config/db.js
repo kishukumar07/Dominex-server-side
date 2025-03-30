@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
-import env from 'dotenv' ; 
-env.config(); 
+
 import { DB_NAME } from '../utils/constants/dbName.js';
 
 const connectDB = async () => {
@@ -16,4 +15,3 @@ const connectDB = async () => {
 export default connectDB;
 
 
-// mongodb://127.0.0.1:27017/mydatabase

@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import env from 'dotenv' ; 
+env.config();   //using globally 
 import connectDB from "./src/config/db.js";
 
 
@@ -15,11 +17,11 @@ import Follower from "./src/models/follower.model.js";
 const createUser = async () => {
     try {
       const user = new User({
-        username: "Niket",
-        email: "niket@example.com",
-        password: "securepassword",
+        username: "Nidfdkevvt",
+        email: "niket@edfdfxample.com",
+        password: "secudfdrepassword",
         profilePicture: "https://example.com/image.jpg",
-        bio: "Web Developer",
+        bio: "Web Dedfveloper",
         followers: [],
         following: []
       });
@@ -33,3 +35,5 @@ const createUser = async () => {
 
     
      connectDB();  // Connect to MongoDB
+
+
