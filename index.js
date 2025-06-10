@@ -1,41 +1,71 @@
 import express from 'express';
-import http from 'http';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import morgan from 'morgan';
-import cookieParser from 'cookie-parser';
+import cors from 'cors'; 
+import env from 'dotenv'; 
+import { connect } from 'mongoose';
+env.config(); 
+import connectDB  from './src/config/db.config.js';
 
-// Database
-import connectDB from './src/config/db.js';
 
-dotenv.config({
-  path: './.env',
-});
 
+//instance of express 
 const app = express();
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(morgan('dev'));
+app.get("/", (req, res) => {
+    res.status(200).send("talking with Server...");
+});
+
+const PORT = process.env.PORT  ; 
+
+
+
+
+const allowedOrigins = [
+    "http://localhost:4500",
+    "http://localhost:4600",
+];
+
+
+
+
+
+
+
+//middlewares 
 app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true,
-}));
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    Credential:true  
+}))
+
+app.use(express.json({ limit: "20mb" }));
+app.use(express.urlencoded({ encoded: true, limit: "5mb" }));
 
 
-// Routes
-app.use('/',(_,res)=>res.send("server is running"));
+
+
+
+
+
+//Routes
+
 
 
 
 
 //server
-const server=http.createServer(app);
 
-const PORT=process.env.PORT || 5500;
-server.listen(PORT,()=>{
-  connectDB();
-  console.log(`Server running on port ${PORT}`);
-});
+
+app.listen(PORT,()=>{
+console.log(`Server is running at PORT : ${PORT}` ); 
+
+connectDB(); 
+
+
+})
+
+
