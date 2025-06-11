@@ -1,34 +1,18 @@
-import mongoose, { version } from "mongoose";
+import mongoose from "mongoose";
 import bcrypt from 'bcrypt';
 
-
-//UserSchema 
 const UserSchema = new mongoose.Schema({
-
-    groups: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Group'
-    }],
-    followers: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }],
-    followings: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }],
+    // 👤 Personal Details
     name: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
-    contestsParticipated: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Contest'
-    }],
     username: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true
     },
     email: {
         type: String,
@@ -42,20 +26,17 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    profilePic: {
+    gender: {
         type: String,
-        default: 'default-profile.png' // You can set a default profile picture
-    },
-    bannerPic: {
-        type: String,
-        default: 'default-banner.png' // You can set a default banner picture
-    },
-    bio: {
-        type: String,
-        maxLength: [500, 'Bio cannot be more than 500 characters']
+        enum: ['Male', 'Female', 'Other', 'Prefer not to say']
     },
     dateOfBirth: {
         type: Date
+    },
+    bio: {
+        type: String,
+        maxLength: [500, 'Bio cannot be more than 500 characters'],
+        trim: true
     },
     websiteUrl: {
         type: String,
@@ -66,18 +47,20 @@ const UserSchema = new mongoose.Schema({
             message: 'Please enter a valid URL'
         }
     },
-    gender: {
+    profilePic: {
         type: String,
-        enum: ['Male', 'Female', 'Other', 'Prefer not to say']
+        default: 'default-profile.png'
     },
+    bannerPic: {
+        type: String,
+        default: 'default-banner.png'
+    },
+
+    // 🔐 Account Info
     isVerified: {
         type: Boolean,
         default: false
     },
-    posts: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Post'
-    }],
     isPrivate: {
         type: Boolean,
         default: false
@@ -94,44 +77,56 @@ const UserSchema = new mongoose.Schema({
     refreshTokenExpiry: {
         type: Date
     },
+
+    // 🌐 Social Connections
+    followers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    followings: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    groups: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group'
+    }],
+
+    // 📝 User Activity
+    posts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
+    }],
     stories: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Story'
+    }],
+    contestsParticipated: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Contest'
     }]
 }, {
     timestamps: true,
-    versionKey: false  
-}); 
+    versionKey: false
+});
 
-
-
-
-//PRE_HOOK_MONGOOSE_MIDDLEWARE
-UserSchema.pre("save", async (next) => {
-    // Only hash the password if it's modified 
+// Pre-save middleware for password hashing
+UserSchema.pre("save", async function(next) {
     if (!this.isModified("password")) return next();
     try {
-        // Only hash the password if it's modified
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(this.password, salt);
-        //modifying the password to hashed password 
-        this.password = hashedPassword;
+        this.password = await bcrypt.hash(this.password, salt);
         next();
     } catch (err) {
         next(err);
     }
-})
+});
 
-
-//Password Comparison Method 
-UserSchema.methods.comparePassword = function (password) {
+// Password comparison method
+UserSchema.methods.comparePassword = function(password) {
     return bcrypt.compare(password, this.password);
 };
 
-
-
-//UserModel 
 const UserModel = mongoose.model("User", UserSchema);
-
 
 export default UserModel;
