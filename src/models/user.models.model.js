@@ -27,6 +27,14 @@ const UserSchema = new mongoose.Schema({
         lowercase: true,
         trim: true,
         match: [/.+@.+\..+/, 'Please enter a valid email address']
+
+    },
+    phone: {
+        type: String,
+        required: [true, 'Phone number is required'],
+        unique: true,
+        trim: true,
+        match: [/^\d{10}$/, 'Phone number must be exactly 10 digits'],
     },
     password: {
         type: String,
@@ -90,7 +98,10 @@ const UserSchema = new mongoose.Schema({
     },
     refreshToken: {
         type: String,
+
+       
         select: false // Hide this field in queries unless explicitly selected
+
     },
     refreshTokenExpiry: {
         type: Date
