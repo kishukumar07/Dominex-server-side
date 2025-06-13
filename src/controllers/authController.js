@@ -1,5 +1,7 @@
 import UserModel from "../models/user.models.model.js";
-import { setToken } from '../utils/auth/token.js';
+import { setToken  } from '../utils/auth/token.js';
+import generateOtp from "../utils/auth/generateOtp.js";
+import sendEmail from '../utils/mail/mailer.js'
 
 
 const register = async (req, res) => {
@@ -18,6 +20,7 @@ const register = async (req, res) => {
             });
         }
 
+        const otpCred = generateOtp();
         // Create new user 
         const newUser = await UserModel.create({
             name,
@@ -25,16 +28,26 @@ const register = async (req, res) => {
             email,
             phone,
             password,
-            isVerified: false
+            isVerified: false,
+
+            otp:otpCred.otp,
+            otpExpire:otpCred.otpExpire
         });
 
+const token =  setToken(newUser._id , res);
+
+   sendEmail({email:newUser.email ,emailType:"OTP" ,val : {
+    otp :otpCred.otp
+   } });     
+    
+    
         // Remove password from response
         newUser.password = undefined;
 
         return res.status(201).json({
             success: true,
             message: "User registered successfully",
-            data: newUser
+            token 
         });
 
     } catch (error) {
@@ -86,7 +99,7 @@ const login = async (req, res) => {
         const token = setToken(user._id, res);
         // console.log(user);       // Mongoose Document
         // console.log(user._doc);  // Plain JavaScript object with the actual data
-        const userData = { ...user._doc };
+        const userData = { ...user._doc };      
         delete userData.password;
 
         res.status(200).json({ message: 'Logged in successfull', data: userData, token });
