@@ -1,4 +1,5 @@
 import UserModel from "../models/user.models.model.js";
+import { setToken } from '../utils/auth/token.js';
 
 
 const register = async (req, res) => {
@@ -62,8 +63,42 @@ const register = async (req, res) => {
 
 
 
-const login = () => {
+const login = async (req, res) => {
 
+    const { email, phone, password } = req.body;
+
+    try {
+        if (!email && !phone) {
+            return res.status(400).json({ message: "Email or Phone required" });
+        }
+        const user = await UserModel.findOne({ $or: [{ email }, { phone }] });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not founded" });
+        }
+
+        const isValidPassword = user.comparePassword(password);
+
+        if (!isValidPassword) {
+            return res.status(401).json({ message: "Incorrect Password" });
+        }
+
+        const token = setToken(user._id, res);
+        // console.log(user);       // Mongoose Document
+        // console.log(user._doc);  // Plain JavaScript object with the actual data
+        const userData = { ...user._doc };
+        delete userData.password;
+
+        res.status(200).json({ message: 'Logged in successfull', data: userData, token });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Internal server error",
+            err: err.message
+        });
+
+    }
 }
 
 
