@@ -8,6 +8,13 @@ const register = async (req, res) => {
     try {
         const { name, username, email, phone, password } = req.body;
 
+        if (!password) {
+            return "Password is required";
+        }
+        if (!email && !phone) {
+            return "Either email or phone is required";
+        }
+
         // Check if user already exists
         const existingUser = await UserModel.findOne({
             $or: [{ email }, { phone }, { username }]
@@ -34,7 +41,7 @@ const register = async (req, res) => {
             otpExpire: otpCred.otpExpire
         });
 
-        const token = setToken(newUser._id, res);
+
 
         sendEmail({
             email: newUser.email, emailType: "OTP", val: {
@@ -49,7 +56,7 @@ const register = async (req, res) => {
         return res.status(201).json({
             success: true,
             message: "User registered successfully",
-            token
+            data: newUser
         });
 
     } catch (error) {
@@ -98,13 +105,43 @@ const login = async (req, res) => {
             return res.status(401).json({ message: "Incorrect Password" });
         }
 
-        const token = setToken(user._id, res);
-        // console.log(user);       // Mongoose Document
-        // console.log(user._doc);  // Plain JavaScript object with the actual data
-        const userData = { ...user._doc };
-        delete userData.password;
 
-        res.status(200).json({ message: 'Logged in successfull', data: userData, token });
+        // Check verification status
+        if (!user.isVerified) {
+            // Generate new OTP for unverified users
+            const otpCred = generateOtp();
+            user.otp = otpCred.otp;
+            user.otpExpire = otpCred.expire;
+            await user.save();
+
+            // Send new OTP
+            await sendEmail({
+                email: user.email,
+                emailType: "OTP",
+                val: { otp: otpCred.otp }
+            });
+
+            return res.status(403).json({
+                success: false,
+                message: "Email not verified. New OTP sent to your email.",
+                userId: user._id
+            });
+        }
+
+
+
+        return res.status(200).json({
+            success: true,
+            message: "Login successful",
+            data: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                isVerified: user.isVerified
+            },
+            token
+        });
+
 
     } catch (err) {
         console.log(err);
