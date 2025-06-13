@@ -15,8 +15,7 @@ const authMiddleware = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);   
     
     // Attach user data to request object
-    req.user = decoded;
-
+   req.userId = decoded.userId;   
     next(); // Continue to the next middleware or route
   } catch (error) {
     return res.status(401).json({ message: 'Unauthorized: Invalid token' });
