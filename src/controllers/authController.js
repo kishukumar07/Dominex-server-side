@@ -93,7 +93,7 @@ const login = async (req, res) => {
       return res.status(404).json({ message: "User not founded" });
     }
 
-    const isValidPassword = user.comparePassword(password);
+    const isValidPassword = await user.comparePassword(password);
 
     if (!isValidPassword) {
       return res.status(401).json({ message: "Incorrect Password" });

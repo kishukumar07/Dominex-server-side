@@ -80,6 +80,7 @@ const updateUserInfo = async (req, res) => {
       "gender",
       "dateOfBirth",
     ];
+
     // Filter only allowed fields
     const updates = {};
     for (let key of allowedFields) {
@@ -121,16 +122,22 @@ const updatePassword = async (req, res) => {
 
   const givenUserid = req.params.id;
   const u_id = req.userId;
-  if (givenUserid !== givenUserid) {
+  if (u_id !== givenUserid) {
     return res.status(403).json({
       success: false,
       msg: "You are not authorized to change this user's password",
     });
   }
 
+  // Expected req.body structure:
+  // {
+  //   oldPassword: String, // user's current password
+  //   newPassword: String  // user's new password
+  // }
   const { oldPassword, newPassword } = req.body;
+  // console.log(!oldPassword )
 
-  if (!oldPassword || newPassword) {
+  if (!oldPassword || !newPassword) {
     return res.status(400).json({
       success: false,
       msg: "Both old and new passwords are required",
@@ -138,9 +145,7 @@ const updatePassword = async (req, res) => {
   }
 
   try {
-    const user = await UserModel.findById(u_id, {
-      password: 1,
-    });
+    const user = await UserModel.findById(u_id).select("+password");
 
     if (!user) {
       return res.status(404).json({
@@ -149,18 +154,20 @@ const updatePassword = async (req, res) => {
       });
     }
 
-    const isValidPassword = user.comparePassword(oldPassword);
+    const isValidPassword = await user.comparePassword(oldPassword);
 
     if (!isValidPassword) {
-      return res.status(401).json({ message: "Incorrect Password" });
+      return res.status(401).json({
+        success: false,
+        msg: "Incorrect Password",
+      });
     }
-
     user.password = newPassword;
     await user.save();
 
     res.status(200).json({
-      sucess: true,
-      msg: "password updated sucessfully",
+      success: true,
+      msg: "Password updated successfully",
     });
   } catch (err) {
     res.status(500).json({
@@ -171,14 +178,17 @@ const updatePassword = async (req, res) => {
   }
 };
 
-const resetPassword = (req, res) => {
+const resetPassword = (req, res) => { };
 
-  
+const updateEmail = (req, res) => { };
+
+const updatePhone = (req, res) => { };
+
+export {
+  userProfile,
+  updateUserInfo,
+  updatePassword,
+  resetPassword,
+  updateEmail,
+  updatePhone,
 };
-
-
-
-
-
-
-export { userProfile, updateUserInfo, updatePassword, resetPassword };
