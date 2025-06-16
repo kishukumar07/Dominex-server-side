@@ -19,9 +19,8 @@ router.patch("/:id", authenticate, updateUserInfo);
 router.patch("/:id/password", authenticate, updatePassword);
 
 //have to done...#resetPassword
-router.post("/requestResetEmail",authenticate ,requestResetEmail); 
-
-router.patch("/:id/passwordReset", authenticate, resetPassword);
+router.post("/requestResetEmail",requestResetEmail); 
+router.patch("/:id/passwordReset",  resetPassword);
 
 
 //have to done...

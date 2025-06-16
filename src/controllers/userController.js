@@ -215,8 +215,11 @@ const requestResetEmail = async (req, res) => {
       val: otpCrud.otp,
     });
 
+    const userId = user._id;
+
     return res.status(200).json({
       success: true,
+      userId,
       info,
     });
   } catch (err) {
@@ -228,11 +231,44 @@ const requestResetEmail = async (req, res) => {
   }
 }; //this will send email with otp
 
-//redirection to 
+//redirection to
 
-const resetPassword = (req, res) => {
+const resetPassword = async (req, res) => {
   //   otp verification happens here +
+
+  const { otp, userId, newpassword } = req.otp;
+
+  if (!otp) {
+    return res.status(400).json({
+      success: false,
+      msg: "No Otp Provided",
+    });
+  }
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      msg: "No userId Provided",
+    });
+  }
+  if (!newpassword) {
+    return res.status(400).json({
+      success: false,
+      msg: "Enter the new Password",
+    });
+  }
+  const user = await UserModel.findOne({ userId });
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      msg :"User not found" 
+    });
+  }
+
+
   //   if verifyed then well reset password
+
+
+
   //and give them a res of sucess ....
 }; //the otp and new pass should be passed and reset happens
 
