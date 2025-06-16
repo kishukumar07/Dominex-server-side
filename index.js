@@ -7,7 +7,7 @@ import connectDB  from './src/config/db.config.js';
 
 
 import authRoute from './src/routes/authRoute.js'; 
-
+import userRoute from './src/routes/userRoute.js'
 
 
 //instance of express 
@@ -56,6 +56,7 @@ app.use(express.urlencoded({ encoded: true, limit: "5mb" }));
 
 //Routes
 app.use('/api/auth',authRoute); 
+app.use('/users',userRoute); 
 
 
 

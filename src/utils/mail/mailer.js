@@ -30,12 +30,12 @@ const sendEmail = async ({ email, emailType, val }) => {
             subject: sub,
             html: templateMsg
         });
-
+console.log(info); 
         return info;
 
     } catch (err) {
         console.error("Error sending mail : ", err);
-        return;
+        return err;
     }
 
 
