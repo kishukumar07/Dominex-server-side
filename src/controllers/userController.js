@@ -178,16 +178,25 @@ const updatePassword = async (req, res) => {
   }
 };
 
-const resetPassword = (req, res) => { };
+//have to do this thing ...
+const requestResetEmail = (req, res) => {}; //this will send email with otp
+                                            //redirection
+const resetPassword = (req, res) => {};     //the otp and new pass should be passed and reset happens
 
-const updateEmail = (req, res) => { };
 
-const updatePhone = (req, res) => { };
+
+
+
+
+const updateEmail = (req, res) => {};
+
+const updatePhone = (req, res) => {};
 
 export {
   userProfile,
   updateUserInfo,
   updatePassword,
+  requestResetEmail,
   resetPassword,
   updateEmail,
   updatePhone,
