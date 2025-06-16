@@ -30,7 +30,7 @@ const sendEmail = async ({ email, emailType, val }) => {
             subject: sub,
             html: templateMsg
         });
-console.log(info); 
+// console.log(info); 
         return info;
 
     } catch (err) {

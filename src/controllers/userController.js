@@ -1,4 +1,6 @@
 import UserModel from "../models/user.models.model.js";
+import generateOtp from "../utils/auth/generateOtp.js";
+import sendmail from "../utils/mail/mailer.js";
 
 import mongoose from "mongoose";
 
@@ -179,14 +181,60 @@ const updatePassword = async (req, res) => {
 };
 
 //have to do this thing ...
-const requestResetEmail = (req, res) => {}; //this will send email with otp
-                                            //redirection
-const resetPassword = (req, res) => {};     //the otp and new pass should be passed and reset happens
+const requestResetEmail = async (req, res) => {
+  const { email, phone, username } = req.body;
 
+  if (!email && !phone && !username) {
+    return res.status(400).json({
+      success: false,
+      msg: "Please input right Credentials",
+    });
+  }
 
+  try {
+    const user = await UserModel.findOne({
+      $or: [{ email }, { phone }, { username }],
+    });
 
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        msg: "User not found",
+      });
+    }
 
+    const otpCrud = generateOtp();
+    user.otp = otpCrud.otp;
+    user.otpExpire = otpCrud.expire;
+    await user.save();
 
+    const emailType = "RESET_PASSWORD";
+    const info = await sendmail({
+      email: user.email,
+      emailType,
+      val: otpCrud.otp,
+    });
+
+    return res.status(200).json({
+      success: true,
+      info,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      msg: "Internal Server Error",
+      error: err.message,
+    });
+  }
+}; //this will send email with otp
+
+//redirection to 
+
+const resetPassword = (req, res) => {
+  //   otp verification happens here +
+  //   if verifyed then well reset password
+  //and give them a res of sucess ....
+}; //the otp and new pass should be passed and reset happens
 
 const updateEmail = (req, res) => {};
 

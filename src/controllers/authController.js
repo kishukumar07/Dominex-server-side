@@ -47,7 +47,7 @@ const register = async (req, res) => {
     });
 
     // Send OTP email
-    sendEmail({
+  await  sendEmail({
       email: newUser.email,
       emailType: "OTP",
       val: { otp: otpCred.otp },
