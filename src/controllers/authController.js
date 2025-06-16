@@ -128,7 +128,7 @@ const login = async (req, res) => {
             });
         }
 
-
+const token = setToken(user._id); 
 
         return res.status(200).json({
             success: true,

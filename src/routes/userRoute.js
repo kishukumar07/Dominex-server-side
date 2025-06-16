@@ -1,10 +1,6 @@
 import { Router } from "express";
 import {
-  getAllUsers,
-  getUserById,
-  updateUser,
-  updateUserPassword,
-  deleteUser
+userProfile
 }
   from "../controllers/userController.js";
 import authenticate from "../middlewares/auth.middleware.js";
@@ -16,8 +12,16 @@ import authenticate from "../middlewares/auth.middleware.js";
 const router = Router();
 
 
-router.get('/', getAllUsers);
-router.get('/:id', getUserById);
-router.put('/', authenticate, updateUser);
-router.put('/password', authenticate, updateUserPassword);
-router.delete('/', authenticate, deleteUser); 
+router.get('profile/:id',userProfile);
+
+
+
+
+
+
+
+
+
+
+
+export default router ; 
