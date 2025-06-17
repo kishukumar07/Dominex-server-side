@@ -180,7 +180,7 @@ const updatePassword = async (req, res) => {
   }
 };
 
-//have to do this thing ...
+
 const requestResetEmail = async (req, res) => {
   const { email, phone, username } = req.body;
 
@@ -271,7 +271,7 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({
         success: false,
         msg: "Invalid or Expired Otp",
-      });   
+      });
     }
 
     user.password = newpassword;
@@ -406,8 +406,7 @@ const verifyUpdateEmailOtp = async (req, res) => {
   }
 };
 
-
-//remaining... 
+//remaining...
 
 const updatePhone = (req, res) => {};
 
@@ -417,6 +416,7 @@ export {
   updatePassword,
   requestResetEmail,
   resetPassword,
-  updateEmail, 
+  updateEmail,
+  verifyUpdateEmailOtp,
   updatePhone,
 };
