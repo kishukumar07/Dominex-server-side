@@ -271,7 +271,7 @@ const resetPassword = async (req, res) => {
       return res.status(400).json({
         success: false,
         msg: "Invalid or Expired Otp",
-      });
+      });   
     }
 
     user.password = newpassword;
@@ -290,10 +290,124 @@ const resetPassword = async (req, res) => {
       msg: err.message,
     });
   }
-
 }; //the otp and new pass should be passed and reset happens
 
-const updateEmail = (req, res) => {};
+//emailupdate
+// Step 1: Request to update email (send OTP to new email)
+const updateEmail = async (req, res) => {
+  const { newEmail } = req.body;
+  if (!newEmail) {
+    return res.status(400).json({
+      success: false,
+      msg: "Please enter newEmail",
+    });
+  }
+
+  const userId = req.userId;
+  try {
+    // Check if new email is already in use
+    const existing = await UserModel.findOne({ email: newEmail });
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        msg: "Email already in use",
+      });
+    }
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        msg: "User not found",
+      });
+    }
+
+    // Generate OTP and expiry
+    const otpCrud = generateOtp();
+    user.emailUpdateOtp = otpCrud.otp;
+    user.emailUpdateOtpExpire = otpCrud.expire;
+    user.pendingNewEmail = newEmail;
+    await user.save();
+
+    // Send OTP to new email
+    await sendmail({
+      email: newEmail,
+      emailType: "UPDATE_EMAIL",
+      val: otpCrud.otp,
+    });
+
+    return res.status(200).json({
+      success: true,
+      msg: "OTP sent to new email. Please verify to update email.",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      msg: "Server error while requesting email update",
+      error: err.message,
+    });
+  }
+};
+
+// Step 2: Verify OTP and update email
+const verifyUpdateEmailOtp = async (req, res) => {
+  const { otp } = req.body;
+  const userId = req.userId;
+
+  if (!otp) {
+    return res.status(400).json({
+      success: false,
+      msg: "OTP is required",
+    });
+  }
+
+  try {
+    const user = await UserModel.findById(userId);
+    if (
+      !user ||
+      !user.emailUpdateOtp ||
+      !user.emailUpdateOtpExpire ||
+      !user.pendingNewEmail
+    ) {
+      return res.status(400).json({
+        success: false,
+        msg: "No pending email update request",
+      });
+    }
+
+    const isValid =
+      otp === user.emailUpdateOtp && user.emailUpdateOtpExpire > Date.now();
+
+    if (!isValid) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid or expired OTP",
+      });
+    }
+
+    // Update email
+    user.email = user.pendingNewEmail;
+    user.pendingNewEmail = undefined;
+    user.emailUpdateOtp = undefined;
+    user.emailUpdateOtpExpire = undefined;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      msg: "Email updated successfully",
+      data: { email: user.email },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      msg: "Server error while verifying OTP",
+      error: err.message,
+    });
+  }
+};
+
+
+//remaining... 
 
 const updatePhone = (req, res) => {};
 
@@ -303,6 +417,6 @@ export {
   updatePassword,
   requestResetEmail,
   resetPassword,
-  updateEmail,
+  updateEmail, 
   updatePhone,
 };
