@@ -234,9 +234,7 @@ const requestResetEmail = async (req, res) => {
 //redirection to
 
 const resetPassword = async (req, res) => {
-  //   otp verification happens here +
-
-  const { otp, userId, newpassword } = req.otp;
+  const { otp, userId, newpassword } = req.body;
 
   if (!otp) {
     return res.status(400).json({
@@ -256,20 +254,43 @@ const resetPassword = async (req, res) => {
       msg: "Enter the new Password",
     });
   }
-  const user = await UserModel.findOne({ userId });
-  if (!user) {
-    return res.status(404).json({
+
+  try {
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        msg: "User not found",
+      });
+    }
+
+    //   if verified then well reset password
+    const isVerified = otp === user.otp && user.otpExpire > Date.now();
+
+    if (!isVerified) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid or Expired Otp",
+      });
+    }
+
+    user.password = newpassword;
+    user.otp = null;
+    user.otpExpire = null;
+    user.isVerified = true;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      msg: "Password updated successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
       success: false,
-      msg :"User not found" 
+      msg: err.message,
     });
   }
 
-
-  //   if verifyed then well reset password
-
-
-
-  //and give them a res of sucess ....
 }; //the otp and new pass should be passed and reset happens
 
 const updateEmail = (req, res) => {};
