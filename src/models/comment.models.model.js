@@ -18,7 +18,6 @@ const commentSchema = new mongoose.Schema(
       trim: true,
       maxLength: [500, "Comment must be under 500 characters"],
     },
-
     parentComment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Comment",
@@ -26,7 +25,7 @@ const commentSchema = new mongoose.Schema(
     },
     likes: [
       {
-        types: mongoose.types.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
