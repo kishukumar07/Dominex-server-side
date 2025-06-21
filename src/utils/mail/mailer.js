@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
-import { generateOtpEmailTemplate } from "./templates/generateOtpEmailTemplate";
-import { ResetPasswordOtpTemplate } from "./templates/ResetPasswordOtpTemplate";
-import { UpdateEmailOtpTemplate } from "./templates/UpdateEmailOtpTemplate";
+import generateOtpEmailTemplate from "./templates/generateOtpEmailTemplate.js";
+import ResetPasswordOtpTemplate from "./templates/ResetPasswordOtpTemplate.js";
+import UpdateEmailOtpTemplate from "./templates/UpdateEmailOtpTemplate.js";
 
 const sendEmail = async ({ email, emailType, val }) => {
   try {
@@ -14,8 +14,8 @@ const sendEmail = async ({ email, emailType, val }) => {
       },
     });
 
-    let templateMsg="";
-    let sub="";
+    let templateMsg = "";
+    let sub = "";
 
     if (emailType === "OTP") {
       templateMsg = generateOtpEmailTemplate(val);

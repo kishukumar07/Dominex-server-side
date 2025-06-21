@@ -7,11 +7,6 @@ const commentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    post: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Post",
-      required: true,
-    },
     content: {
       type: String,
       required: [true, "Comment can't be empty"],
@@ -25,8 +20,9 @@ const commentSchema = new mongoose.Schema(
     },
     likes: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        type: Number,
+        default: 0,
+        min: 0,
       },
     ],
   },
