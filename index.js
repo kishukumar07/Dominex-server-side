@@ -6,7 +6,9 @@ import connectDB from "./src/config/db.config.js";
 
 import authRoute from "./src/routes/authRoute.js";
 import userRoute from "./src/routes/userRoute.js";
-
+import postRoute from "./src/routes/postRoute.js";
+import commentRoute from "./src/routes/commentRoute.js";
+import storyRoute from "./src/routes/StoryRoute.js";
 //instance of express
 const app = express();
 
@@ -38,7 +40,9 @@ app.use(express.urlencoded({ encoded: true, limit: "5mb" }));
 //Routes
 app.use("/api/auth", authRoute);
 app.use("/users", userRoute);
-
+app.use("posts", postRoute);
+app.use("stories", storyRoute);
+app.use("comments", commentRoute);
 //server
 
 app.listen(PORT, () => {

@@ -11,9 +11,8 @@ import {
   getUserPosts,
 } from "../controllers/postController.js";
 
-// Create post  
+// Create post
 router.post("/", createPost);
-
 
 // Get all posts
 router.get("/", getAllPosts);

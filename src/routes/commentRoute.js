@@ -19,7 +19,7 @@ router.get("/", getAllComments);
 // Get a single comment
 router.get("/:id", getCommentById);
 
-// Update a comment
+// Update a coFmment
 router.put("/:id", updateComment);
 
 // Delete a comment
