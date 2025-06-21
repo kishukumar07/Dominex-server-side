@@ -104,7 +104,7 @@ const updatePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
   if (!oldPassword || !newPassword) {
-    return res.status(400).json({ success: false, msg: "Passwords required" });
+    return res.status(400).json({ success: false, msg: "Both Old and new Password Required" });
   }
 
   try {

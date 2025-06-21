@@ -1,4 +1,5 @@
 const generateOtpEmailTemplate = (otp) => {
+  
   return `
     <div style="font-family: Arial, sans-serif;">
       <h2>Verify Your Account</h2>
