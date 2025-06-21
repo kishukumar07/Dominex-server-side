@@ -163,15 +163,15 @@ const UserSchema = new mongoose.Schema(
         default: [],
       },
     ],
-  //   contestsParticipated: [
-  //     {
-  //       type: mongoose.Schema.Types.ObjectId,
-  //       ref: "Contest",
-  //       default: [],
-  //     },
-  //   ],
+    //   contestsParticipated: [
+    //     {
+    //       type: mongoose.Schema.Types.ObjectId,
+    //       ref: "Contest",
+    //       default: [],
+    //     },
+    //   ],
   },
-  { 
+  {
     timestamps: true,
     versionKey: false,
   }
