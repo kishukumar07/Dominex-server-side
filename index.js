@@ -30,7 +30,7 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    Credential: true,
+    credentials: true,
   })
 );
 
@@ -40,9 +40,9 @@ app.use(express.urlencoded({ encoded: true, limit: "5mb" }));
 //Routes
 app.use("/api/auth", authRoute);
 app.use("/users", userRoute);
-app.use("posts", postRoute);
-app.use("stories", storyRoute);
-app.use("comments", commentRoute);
+app.use("/posts", postRoute);
+app.use("/stories", storyRoute);
+app.use("/comments", commentRoute);
 //server
 
 app.listen(PORT, () => {

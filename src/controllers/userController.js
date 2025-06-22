@@ -104,7 +104,9 @@ const updatePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
   if (!oldPassword || !newPassword) {
-    return res.status(400).json({ success: false, msg: "Both Old and new Password Required" });
+    return res
+      .status(400)
+      .json({ success: false, msg: "Both Old and new Password Required" });
   }
 
   try {
@@ -121,19 +123,17 @@ const updatePassword = async (req, res) => {
 
     res.status(200).json({ success: true, msg: "Password updated" });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        msg: "Error updating password",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      msg: "Error updating password",
+      error: err.message,
+    });
   }
 };
 
 const requestResetEmail = async (req, res) => {
   const { email, phone, username } = req.body;
-
+  console.log(req.headers);
   if (!email && !phone && !username) {
     return res.status(400).json({ success: false, msg: "Missing credentials" });
   }
@@ -193,13 +193,11 @@ const resetPassword = async (req, res) => {
 
     res.status(200).json({ success: true, msg: "Password reset successful" });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        msg: "Error resetting password",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      msg: "Error resetting password",
+      error: err.message,
+    });
   }
 };
 
@@ -233,13 +231,11 @@ const updateEmail = async (req, res) => {
 
     res.status(200).json({ success: true, msg: "OTP sent to new email" });
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        msg: "Error requesting email update",
-        error: err.message,
-      });
+    res.status(500).json({
+      success: false,
+      msg: "Error requesting email update",
+      error: err.message,
+    });
   }
 };
 
@@ -276,13 +272,11 @@ const verifyUpdateEmailOtp = async (req, res) => {
     user.emailUpdateOtpExpire = undefined;
     await user.save();
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        msg: "Email updated",
-        data: { email: user.email },
-      });
+    res.status(200).json({
+      success: true,
+      msg: "Email updated",
+      data: { email: user.email },
+    });
   } catch (err) {
     res
       .status(500)

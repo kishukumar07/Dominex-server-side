@@ -14,6 +14,20 @@ import authenticate from "../middlewares/auth.middleware.js";
 const router = Router();
 
 /**
+ * @route PATCH /api/user/requestResetEmail
+ * @desc Request OTP to reset password (via email/username/phone)
+ * @access Public
+ */
+router.patch("/requestResetEmail", requestResetEmail);
+
+/**
+ * @route PATCH /api/user/:id/passwordReset
+ * @desc Reset password with OTP
+ * @access Public (only with valid OTP)
+ */
+router.patch("/:id/passwordReset", resetPassword);
+
+/**
  * @route GET /api/user/profile/:id
  * @desc Get user profile by ID
  * @access Protected
@@ -35,20 +49,6 @@ router.patch("/:id", authenticate, updateUserInfo);
 router.patch("/:id/password", authenticate, updatePassword);
 
 /**
- * @route PATCH /api/user/requestResetEmail
- * @desc Request OTP to reset password (via email/username/phone)
- * @access Public
- */
-router.patch("/requestResetEmail", requestResetEmail);
-
-/**
- * @route PATCH /api/user/:id/passwordReset
- * @desc Reset password with OTP
- * @access Public (only with valid OTP)
- */
-router.patch("/:id/passwordReset", resetPassword);
-
-/**
  * @route PATCH /api/user/updateEmail
  * @desc Request OTP to update email
  * @access Protected
@@ -68,9 +68,6 @@ router.patch("/verifyNewEmailOtp", authenticate, verifyUpdateEmailOtp);
  * @access Protected
  */
 
-
 router.patch("/:id/phone", authenticate, updatePhone);
-
-
 
 export default router;

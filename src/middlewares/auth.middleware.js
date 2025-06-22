@@ -2,7 +2,8 @@ import jwt from "jsonwebtoken";
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
-console.log(authHeader); 
+  // console.log("Auth middleware called for:", req.method, req.originalUrl);
+  // console.log(authHeader);
   // Check if Authorization header exists and starts with "Bearer"
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
