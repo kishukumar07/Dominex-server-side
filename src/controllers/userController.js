@@ -50,7 +50,7 @@ const userProfile = async (req, res) => {
 };
 
 const updateUserInfo = async (req, res) => {
-  console.log(1); 
+  console.log(1);
   const u_id = req.userId;
   const givenUserid = req.params.id;
 
@@ -170,7 +170,7 @@ const requestResetEmail = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   const { otp, newPassword } = req.body;
-  const  userId  = req.params.id;
+  const userId = req.params.id;
   // console.log(req.params);
   if (!otp) {
     return res.status(400).json({ success: false, msg: "OTP is required" });
@@ -217,15 +217,22 @@ const updateEmail = async (req, res) => {
 
   if (!newEmail)
     return res.status(400).json({ success: false, msg: "New email required" });
+  //authorization
+  if (req.params.id && req.params.id !== userId) {
+    return res.status(403).json({ success: false, msg: "Unauthorized action" });
+  }
 
   try {
-    const existing = await UserModel.findOne({ email: newEmail });
-    if (existing)
-      return res.status(409).json({ success: false, msg: "Email in use" });
-
+    // Authorization: ensure the user is modifying only their own account
     const user = await UserModel.findById(userId);
     if (!user)
       return res.status(404).json({ success: false, msg: "User not found" });
+
+    // Optional: if you accept userId in the body or params, verify identity
+
+    const existing = await UserModel.findOne({ email: newEmail });
+    if (existing)
+      return res.status(409).json({ success: false, msg: "Email in use" });
 
     const otpData = generateOtp();
     user.emailUpdateOtp = otpData.otp;
@@ -255,6 +262,10 @@ const verifyUpdateEmailOtp = async (req, res) => {
 
   if (!otp)
     return res.status(400).json({ success: false, msg: "OTP required" });
+  //authorization
+  if (req.params.id && req.params.id !== userId) {
+    return res.status(403).json({ success: false, msg: "Unauthorized action" });
+  }
 
   try {
     const user = await UserModel.findById(userId);

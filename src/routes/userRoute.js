@@ -32,14 +32,14 @@ router.patch("/:id/passwordReset", resetPassword);
  * @desc Request OTP to update email
  * @access Protected
  */
-router.patch("/updateEmail", authenticate, updateEmail);
+router.patch("/:id/updateEmail", authenticate, updateEmail);
 
 /**
  * @route PATCH /api/user/verifyNewEmailOtp
  * @desc Verify OTP and update email
  * @access Protected
  */
-router.patch("/verifyNewEmailOtp", authenticate, verifyUpdateEmailOtp);
+router.patch("/:id/verifyNewEmailOtp", authenticate, verifyUpdateEmailOtp);
 
 /**
  * @route PATCH /api/user/:id/phone
