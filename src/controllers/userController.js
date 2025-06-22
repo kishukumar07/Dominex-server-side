@@ -50,6 +50,7 @@ const userProfile = async (req, res) => {
 };
 
 const updateUserInfo = async (req, res) => {
+  console.log(1); 
   const u_id = req.userId;
   const givenUserid = req.params.id;
 
@@ -133,9 +134,11 @@ const updatePassword = async (req, res) => {
 
 const requestResetEmail = async (req, res) => {
   const { email, phone, username } = req.body;
-  console.log(req.headers);
+
   if (!email && !phone && !username) {
-    return res.status(400).json({ success: false, msg: "Missing credentials" });
+    return res
+      .status(400)
+      .json({ success: false, msg: "Either Email,phone,username is Required" });
   }
 
   try {
@@ -166,12 +169,19 @@ const requestResetEmail = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-  const { otp, userId, newpassword } = req.body;
-
-  if (!otp || !userId || !newpassword) {
+  const { otp, newPassword } = req.body;
+  const  userId  = req.params.id;
+  // console.log(req.params);
+  if (!otp) {
+    return res.status(400).json({ success: false, msg: "OTP is required" });
+  }
+  if (!userId) {
+    return res.status(400).json({ success: false, msg: "User ID is required" });
+  }
+  if (!newPassword) {
     return res
       .status(400)
-      .json({ success: false, msg: "Required fields missing" });
+      .json({ success: false, msg: "New password is required" });
   }
 
   try {
@@ -185,7 +195,7 @@ const resetPassword = async (req, res) => {
         .status(400)
         .json({ success: false, msg: "Invalid/expired OTP" });
 
-    user.password = newpassword;
+    user.password = newPassword;
     user.otp = null;
     user.otpExpire = null;
     user.isVerified = true;

@@ -28,6 +28,25 @@ router.patch("/requestResetEmail", requestResetEmail);
 router.patch("/:id/passwordReset", resetPassword);
 
 /**
+ * @route PATCH /api/user/updateEmail
+ * @desc Request OTP to update email
+ * @access Protected
+ */
+router.patch("/updateEmail", authenticate, updateEmail);
+
+/**
+ * @route PATCH /api/user/verifyNewEmailOtp
+ * @desc Verify OTP and update email
+ * @access Protected
+ */
+router.patch("/verifyNewEmailOtp", authenticate, verifyUpdateEmailOtp);
+
+/**
+ * @route PATCH /api/user/:id/phone
+ * @desc Update phone (yet to implement)
+ * @access Protected
+ */
+/**
  * @route GET /api/user/profile/:id
  * @desc Get user profile by ID
  * @access Protected
@@ -47,26 +66,6 @@ router.patch("/:id", authenticate, updateUserInfo);
  * @access Protected
  */
 router.patch("/:id/password", authenticate, updatePassword);
-
-/**
- * @route PATCH /api/user/updateEmail
- * @desc Request OTP to update email
- * @access Protected
- */
-router.patch("/updateEmail", authenticate, updateEmail);
-
-/**
- * @route PATCH /api/user/verifyNewEmailOtp
- * @desc Verify OTP and update email
- * @access Protected
- */
-router.patch("/verifyNewEmailOtp", authenticate, verifyUpdateEmailOtp);
-
-/**
- * @route PATCH /api/user/:id/phone
- * @desc Update phone (yet to implement)
- * @access Protected
- */
 
 router.patch("/:id/phone", authenticate, updatePhone);
 
