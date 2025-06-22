@@ -240,13 +240,13 @@ const updateEmail = async (req, res) => {
     user.pendingNewEmail = newEmail;
     await user.save();
 
-    await sendmail({
+    const info = await sendmail({
       email: newEmail,
       emailType: "UPDATE_EMAIL",
-      val: otpData.otp,
+      val: otpData,
     });
 
-    res.status(200).json({ success: true, msg: "OTP sent to new email" });
+    res.status(200).json({ success: true, msg: "OTP sent to new email", info });
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -281,7 +281,7 @@ const verifyUpdateEmailOtp = async (req, res) => {
     }
 
     const isValid =
-      otp === user.emailUpdateOtp && user.emailUpdateOtpExpire > Date.now();
+      otp == user.emailUpdateOtp && user.emailUpdateOtpExpire > Date.now();
     if (!isValid)
       return res
         .status(400)
