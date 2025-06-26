@@ -14,17 +14,13 @@ const postSchema = new mongoose.Schema(
     photo: {
       type: String, // e.g., "uploads/images/abc.png" or Cloudinary URL
     },
-    video: {
-      type: String,
-    },
-
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
     ],
-    Comment: [
+    comment: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Comment",

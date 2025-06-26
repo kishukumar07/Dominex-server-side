@@ -155,6 +155,7 @@ const verify = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    // console.log(use)
     const isOtpValid = user.otp === otp && user.otpExpire > Date.now();
     if (!isOtpValid) {
       return res.status(401).json({ message: "Invalid or Expire OTP" });

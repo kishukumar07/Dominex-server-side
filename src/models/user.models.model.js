@@ -93,11 +93,15 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    otp: {
-      type: Number,
-      min: [100000, "OTP must be a 6-digit number"],
-      max: [999999, "OTP must be a 6-digit number"],
+   otp: {
+  type: String,
+  validate: {
+    validator: function (v) {
+      return !v || /^\d{6}$/.test(v);
     },
+    message: "OTP must be a 6-digit number",
+  },
+},
     otpExpire: {
       type: Date,
     },

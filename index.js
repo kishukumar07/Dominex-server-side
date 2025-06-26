@@ -18,7 +18,11 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT;
 
-const allowedOrigins = ["http://localhost:4500", "http://localhost:4600"];
+const allowedOrigins = [
+  "http://localhost:4500",
+  "http://localhost:4600",
+  "http://127.0.0.1:5500", //view file url
+];
 
 //middlewares
 app.use(
@@ -43,8 +47,20 @@ app.use("/users", userRoute);
 app.use("/posts", postRoute);
 app.use("/stories", storyRoute);
 app.use("/comments", commentRoute);
-//server
 
+//Handle invalid JSON error // ✅ Error handler is last
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    console.error("Invalid JSON received:", err.message);
+    return res
+      .status(400)
+      .json({ message: "Invalid JSON format in request body" });
+  }
+
+  next(err); // pass to next error handler
+});
+
+//server
 app.listen(PORT, () => {
   console.log(`Server is running at PORT : ${PORT}`);
 
