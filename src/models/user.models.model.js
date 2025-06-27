@@ -83,7 +83,6 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "default-banner.png",
     },
-
     // 🔐 Account Info
     isVerified: {
       type: Boolean,

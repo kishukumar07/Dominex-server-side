@@ -134,11 +134,113 @@ const getUserPosts = async (req, res) => {
   }
 };
 
-const toggleLike = () => {};
+const toggleLike = async (req, res) => {
+  try {
+    const post_Id = req.params.id;
+    const userId = req.userId;
+
+    if (!post_Id || !mongoose.Types.ObjectId.isValid(post_Id)) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid PostID",
+      });
+    }
+
+    const post = await PostModel.findById(post_Id);
+    // Check if Post Exists.
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        msg: "Post not founded",
+      });
+    }
+
+    const alreadyLiked = post.likes.includes(userId);
+
+    if (alreadyLiked) {
+      post.likes.pull(userId);
+    } else {
+      post.likes.push(userId);
+    }
+
+    const response = await post.save();
+
+    res.status(200).json({
+      success: true,
+      data: response,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      msg: err.message,
+    });
+  }
+};
 
 //authorized routes
-const updatePost = () => {};
-const deletePost = () => {};
+const updatePost = async (req, res) => {
+  const userId = req.userId;
+  const postId = req.params.id;
+  const { title } = req.body;
+
+  if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
+    return res.status(400).json({ success: false, msg: "Invalid postId" });
+  }
+
+  if (!title) {
+    return res.status(400).json({ success: false, msg: "Title is required" });
+  }
+
+  try {
+    const post = await PostModel.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ success: false, msg: "Post not found" });
+    }
+
+    // Authorization: only author can update
+    if (post.author != userId) {
+      return res.status(403).json({ success: false, msg: "Unauthorized" });
+    }
+
+    post.title = title;
+    const updatedPost = await post.save();
+
+    return res.status(200).json({ success: true, data: updatedPost });
+  } catch (err) {
+    return res.status(500).json({ success: false, msg: err.message });
+  }
+};
+
+const deletePost = async (req, res) => {
+  const userId = req.userId;
+  const postId = req.params.id;
+
+  if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
+    return res.status(400).json({ success: false, msg: "Invalid postId" });
+  }
+
+  try {
+    const post = await PostModel.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ success: false, msg: "Post not found" });
+    }
+
+    // Authorization: only author can delete
+    if (post.author != userId) {
+      return res.status(403).json({ success: false, msg: "Unauthorized" });
+    }
+
+    await PostModel.findByIdAndDelete(postId);
+
+    return res
+      .status(200)
+      .json({ success: true, msg: "Post deleted successfully" });
+  } catch (err) {
+    return res.status(500).json({ success: false, msg: err.message });
+  }
+};
 
 export {
   createPost,
