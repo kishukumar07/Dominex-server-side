@@ -1,31 +1,39 @@
 import { Router } from "express";
 const router = Router();
+import authenticate from "../middlewares/auth.middleware.js"
 
 import {
-  createComment,
-  getAllComments,
-  getCommentById,
-  updateComment,
-  deleteComment,
-  getCommentsByPostId,
+ createComment,
+ createReplyComment,
+ updateComment,
+ deleteComment,
+ getCommentById,
+ getAllComments
 } from "../controllers/commentController.js";
 
-// Create a comment
-router.post("/", createComment);
+//Create a comment
+router.post("/",authenticate, createComment);
 
-// Get all comments
-router.get("/", getAllComments);
+//create a nested comment
+router.post("/:id/reply",authenticate, createReplyComment);
 
-// Get a single comment
-router.get("/:id", getCommentById);
-
-// Update a coFmment
-router.put("/:id", updateComment);
+// Update a comment
+router.put("/:id",authenticate, updateComment);
 
 // Delete a comment
-router.delete("/:id", deleteComment);
+router.delete("/:id",authenticate, deleteComment);
 
-// Get all comments on a specific post
-router.get("/post/:postId", getCommentsByPostId);
+// Get a single comment
+router.get("/:id",authenticate, getCommentById);
+
+// get all comments for a post including nested )
+router.get("/post/:postId",authenticate, getAllComments);
+
 
 export default router;
+
+
+
+
+
+

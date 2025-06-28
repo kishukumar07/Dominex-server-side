@@ -18,7 +18,7 @@ const commentSchema = new mongoose.Schema(
       trim: true,
       maxLength: [500, "Comment must be under 500 characters"],
     },
-    parentComment: {
+    subComment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Comment",
       default: null,

@@ -1,25 +1,23 @@
-import mongoose from "mongoose";
 import CommentModel from "../models/comment.models.model.js";
+import PostModel from "../models/post.models.model.js";
 
-// createComment,
-//   getAllComments,
-//   getCommentById,
-//   updateComment,
-//   deleteComment,
-//   getCommentsByPostId,
+const createComment = (req, res) => {};
 
-const createComment = () => {};
-const getAllComments = () => {};
-const getCommentById = () => {};
-const updateComment = () => {};
-const deleteComment = () => {};
-const getCommentsByPostId = () => {};
+const createReplyComment = (req, res) => {};
+
+const updateComment = (req, res) => {};
+
+const deleteComment = (req, res) => {};
+
+const getAllComments = (req, res) => {};
+
+const getCommentById = (req, res) => {};
 
 export {
   createComment,
-  getAllComments,
-  getCommentById,
+  createReplyComment,
   updateComment,
   deleteComment,
-  getCommentsByPostId,
+  getCommentById,
+  getAllComments,
 };

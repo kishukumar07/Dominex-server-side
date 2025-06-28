@@ -1,5 +1,7 @@
+import mongoose, { mongo } from "mongoose";
 import StoryModel from "../models/story.models.model.js";
 import uploadOnCloudinary from "../utils/media/Upload.on.Cloudinary.js";
+import { request } from "express";
 
 const createStory = async (req, res) => {
   try {
@@ -86,8 +88,10 @@ const getUserStories = async (req, res) => {
   try {
     const authorId = req.params.userId;
 
-    // console.log(authorId); 
-    const stories = await StoryModel.find({ author: authorId }).sort({ createdAt: -1 });
+    // console.log(authorId);
+    const stories = await StoryModel.find({ author: authorId }).sort({
+      createdAt: -1,
+    });
 
     if (!stories || stories.length === 0) {
       return res.status(404).json({ msg: "No stories found for this user" });
@@ -105,17 +109,76 @@ const getUserStories = async (req, res) => {
   }
 };
 
+//un _ authorized route any one can view story ....
+const updateStory = async (req, res) => {
+  try {
+    const storyId = req.params.id;
+    const authorId = req.userId;
 
-//authorized route ....
-const updateStory = (req, res) => {
-    
+    if (!storyId || !mongoose.Types.ObjectId.isValid(storyId)) {
+      return res.status(400).json({
+        msg: "invalid storyId provided",
+      });
+    }
 
+    const story = await StoryModel.findById(storyId);
+    if (!story) {
+      return res.status(400).json({
+        msg: "Story not found",
+      });
+    }
+
+    story.viewers.push(authorId);
+    const UpdatedStory = await story.save();
+
+    res.status(200).json({
+      success: true,
+      data: UpdatedStory,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      msg: err.message,
+    });
+  }
 };
 
+//authorization required...
+const deleteStory = async (req, res) => {
+  try {
+    const storyId = req.params.id;
+    const author = req.userId;
 
+    if (!storyId || !mongoose.Types.ObjectId.isValid(storyId)) {
+      return res.status(400).json({
+        success: false,
+        msg: "Invalid Story id",
+      });
+    }
 
+    const story = await StoryModel.findById(storyId);
+   
+    if (author != story.author) {
+      return res.status(403).json({
+        success: false,
+        msg: "unauthorized for this ",
+      });
+    }
 
-const deleteStory = () => {};
+    const response = await StoryModel.findByIdAndDelete(storyId);
+
+    res.status(200).json({
+      success: true,
+      msg: "story deleted success",
+      data: response,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      msg: err.message,
+    });
+  }
+};
 
 export {
   createStory,

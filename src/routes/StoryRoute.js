@@ -21,7 +21,7 @@ router.get("/", authenticate, getAllStories);
 router.get("/:id", authenticate, getStoryById);
 
 // Update a story
-router.put("/:id", authenticate, updateStory);
+router.patch("/:id", authenticate, updateStory); //for view purpose ...
 
 // Delete a story
 router.delete("/:id", authenticate, deleteStory);
