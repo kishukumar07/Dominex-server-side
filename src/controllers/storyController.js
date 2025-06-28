@@ -61,10 +61,61 @@ const getAllStories = async (req, res) => {
   }
 };
 
-const getStoryById = () => {};
-const updateStory = () => {};
+const getStoryById = async (req, res) => {
+  try {
+    const storyId = req.params.id;
+    const story = await StoryModel.findById(storyId);
+
+    if (!story) {
+      return res.status(404).json({ msg: "Story not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: story,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      msg: err.message,
+    });
+  }
+};
+
+const getUserStories = async (req, res) => {
+  try {
+    const authorId = req.params.userId;
+
+    // console.log(authorId); 
+    const stories = await StoryModel.find({ author: authorId }).sort({ createdAt: -1 });
+
+    if (!stories || stories.length === 0) {
+      return res.status(404).json({ msg: "No stories found for this user" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: stories,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      msg: err.message,
+    });
+  }
+};
+
+
+//authorized route ....
+const updateStory = (req, res) => {
+    
+
+};
+
+
+
+
 const deleteStory = () => {};
-const getUserStories = () => {};
 
 export {
   createStory,
