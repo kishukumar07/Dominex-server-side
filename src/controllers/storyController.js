@@ -6,23 +6,17 @@ const createStory = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
     }
-
     const uploaded = await uploadOnCloudinary(req.file.path);
     if (!uploaded || !uploaded.url) {
       return res.status(500).json({ error: "Failed to upload media" });
     }
-
     // Ensure req.userId is set (should be set by authentication middleware)
     const author = req.userId;
-
-    console.log(uploaded.url, author);
-
+    // console.log(uploaded.url, author);
     if (!author) {
       return res.status(401).json({ error: "Unauthorized: userId not found" });
     }
-
     const mediaUrl = uploaded.url;
-
     let { caption } = req.body;
     if (!caption) {
       caption = "";
@@ -47,7 +41,26 @@ const createStory = async (req, res) => {
   }
 };
 
-const getAllStories = () => {};
+const getAllStories = async (req, res) => {
+  try {
+    const stories = await StoryModel.find().sort({ createdAt: 1 });
+
+    if (!stories.length) {
+      return res.status(404).json({ msg: "Stories not Founded" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: stories,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      msg: err.message,
+    });
+  }
+};
+
 const getStoryById = () => {};
 const updateStory = () => {};
 const deleteStory = () => {};

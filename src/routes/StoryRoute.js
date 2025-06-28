@@ -15,18 +15,18 @@ import {
 router.post("/", authenticate, upload.single("media"), createStory);
 
 // Get all stories
-router.get("/", getAllStories);
+router.get("/", authenticate, getAllStories);
 
 // Get a specific story
-router.get("/:id", getStoryById);
+router.get("/:id", authenticate, getStoryById);
 
 // Update a story
-router.put("/:id", updateStory);
+router.put("/:id", authenticate, updateStory);
 
 // Delete a story
-router.delete("/:id", deleteStory);
+router.delete("/:id", authenticate, deleteStory);
 
 // Get all stories by a user
-router.get("/user/:userId", getUserStories);
+router.get("/user/:userId", authenticate, getUserStories);
 
 export default router;
