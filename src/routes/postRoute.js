@@ -11,7 +11,7 @@ import {
   toggleLike,
   getUserPosts,
 } from "../controllers/postController.js";
-import authMiddleware from "../middlewares/auth.middleware.js";
+
 
 // Create post
 router.post("/", authenticate, upload.single("image"), createPost); //authentication only

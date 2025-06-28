@@ -1,6 +1,7 @@
 import { Router } from "express";
 const router = Router();
-
+import authenticate from "../middlewares/auth.middleware.js";
+import upload from "../middlewares/multer.middleware.js";
 import {
   createStory,
   getAllStories,
@@ -11,7 +12,7 @@ import {
 } from "../controllers/storyController.js";
 
 // Create a story
-router.post("/", createStory);
+router.post("/", authenticate, upload.single("media"), createStory);
 
 // Get all stories
 router.get("/", getAllStories);
