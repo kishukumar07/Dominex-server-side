@@ -10,7 +10,7 @@ const createPost = async (req, res) => {
       return res.status(400).json({ error: "No file uploaded" });
     }
     const uploaded = await uploadOnCloudinary(req.file.path);
-    // console.log(uploaded.url);
+    console.log(uploaded.url);
     // we will post this url in place of pics....
     const photo = uploaded.url;
     const author = req.userId;
@@ -19,13 +19,16 @@ const createPost = async (req, res) => {
     if (!title) {
       return res.status(400).json({ error: "Title is required" });
     }
+
+    // console.log(author, title, photo);
+
     const newPost = await PostModel.create({
       //author title photo likes Comment
       author,
       title,
       photo,
     });
-    // console.log(newPost);
+    console.log(newPost);
     return res.status(201).json(newPost);
   } catch (error) {
     console.error(error);

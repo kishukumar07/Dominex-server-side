@@ -25,7 +25,7 @@ router.get("/:id", authenticate, getPostById);
 router.get("/user/:userId", getUserPosts);
 
 //authorizized Routes ...
-
+ 
 // Update post
 router.put("/:id", authenticate, updatePost);
 

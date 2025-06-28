@@ -13,11 +13,17 @@ const commentSchema = new mongoose.Schema(
       trim: true,
       maxLength: [500, "Comment must be under 500 characters"],
     },
-    subComment: {
+    post: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
-      default: null,
+      ref: "Post",
+      required: true,
     },
+    subComment: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,

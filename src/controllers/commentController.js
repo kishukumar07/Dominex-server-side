@@ -27,7 +27,7 @@ const createComment = async (req, res) => {
       author,
       content,
       post: postId,
-      subComment: null,
+      subComment: [],
     });
 
     // Add comment to post's comment array
@@ -70,8 +70,18 @@ const createReplyComment = async (req, res) => {
       author,
       content,
       post: parentComment.post,
-      subComment: parentCommentId,
+      subComment: [],
     });
+
+    // Push reply id to parent comment's subComment array if you have such a field
+    // If subComment is a single reference, you may want to add a replies array to your schema
+
+    if (!parentComment.subComment) {
+      parentComment.subComment = [];
+    }
+    parentComment.subComment.push(reply._id);
+
+    await parentComment.save();
 
     res.status(201).json({ success: true, data: reply });
   } catch (err) {
@@ -96,7 +106,7 @@ const updateComment = async (req, res) => {
     if (!comment) {
       return res.status(404).json({ success: false, msg: "Comment not found" });
     }
-
+    //authorization
     if (comment.author.toString() !== userId) {
       return res.status(403).json({ success: false, msg: "Not authorized" });
     }

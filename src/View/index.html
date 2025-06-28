@@ -9,8 +9,9 @@
 
 <body>
     <form id="uploadForm" enctype="multipart/form-data">
-        <input type="text" name="caption">
-        <input type="file" name="media" required>
+        <input type="text" name="title">
+        <input type="file" name="image" required>  
+        <!-- //media for /stories/  -->
         <button type="submit">Upload File</button>
     </form>
 
@@ -22,7 +23,7 @@
 
      
 
-            const response = await fetch('http://localhost:4500/stories/', {
+            const response = await fetch('http://localhost:4500/posts/', {
                 method: 'POST',
                 body: formData,
                 headers: {
