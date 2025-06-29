@@ -69,12 +69,9 @@ const createReplyComment = async (req, res) => {
     const reply = await CommentModel.create({
       author,
       content,
-      post: parentComment.post,
+      parentComment: parentCommentId,
       subComment: [],
     });
-
-    // Push reply id to parent comment's subComment array if you have such a field
-    // If subComment is a single reference, you may want to add a replies array to your schema
 
     if (!parentComment.subComment) {
       parentComment.subComment = [];
@@ -89,13 +86,7 @@ const createReplyComment = async (req, res) => {
   }
 };
 
-
-
-
 //REMAINING TESTING .....
-
-
-
 
 // Update a comment
 const updateComment = async (req, res) => {
@@ -187,7 +178,7 @@ const getCommentById = async (req, res) => {
   }
 };
 
-// Get all comments for a post (including nested)     
+// Get all comments for a post (including nested)
 const getAllComments = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -196,17 +187,22 @@ const getAllComments = async (req, res) => {
       return res.status(400).json({ success: false, msg: "Invalid postId" });
     }
 
-    // Get all top-level comments for the post
-    const comments = await CommentModel.find({ post: postId, subComment: null })
+    const comments = await CommentModel.find({
+      post: postId,
+      parentComment: null,
+    }) // assuming top-level comments have no parent
       .populate("author", "username")
+      .populate({
+        path: "subComment",
+        populate: [
+          { path: "author", select: "username" },
+          {
+            path: "subComment",
+            populate: { path: "author", select: "username" }, // 2nd level of nesting
+          },
+        ],
+      })
       .lean();
-
-    // Optionally, fetch nested comments for each top-level comment
-    for (let comment of comments) {
-      comment.replies = await CommentModel.find({ subComment: comment._id })
-        .populate("author", "username")
-        .lean();
-    }
 
     res.status(200).json({ success: true, data: comments });
   } catch (err) {
@@ -222,4 +218,3 @@ export {
   getCommentById,
   getAllComments,
 };
-
