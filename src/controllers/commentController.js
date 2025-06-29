@@ -89,6 +89,14 @@ const createReplyComment = async (req, res) => {
   }
 };
 
+
+
+
+//REMAINING TESTING .....
+
+
+
+
 // Update a comment
 const updateComment = async (req, res) => {
   try {
@@ -179,7 +187,7 @@ const getCommentById = async (req, res) => {
   }
 };
 
-// Get all comments for a post (including nested)
+// Get all comments for a post (including nested)     
 const getAllComments = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -214,3 +222,4 @@ export {
   getCommentById,
   getAllComments,
 };
+
