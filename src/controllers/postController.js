@@ -1,6 +1,7 @@
 // import mongoose from "mongoose";
 import PostModel from "../models/post.models.model.js";
 import uploadOnCloudinary from "../utils/media/Upload.on.Cloudinary.js";
+import mongoose from "mongoose";
 
 const createPost = async (req, res) => {
   try {
