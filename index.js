@@ -9,6 +9,8 @@ import userRoute from "./src/routes/userRoute.js";
 import postRoute from "./src/routes/postRoute.js";
 import commentRoute from "./src/routes/commentRoute.js";
 import storyRoute from "./src/routes/StoryRoute.js";
+import followRoute from "./src/routes/followRoutes.js";
+
 //instance of express
 const app = express();
 
@@ -47,6 +49,7 @@ app.use("/users", userRoute);
 app.use("/posts", postRoute);
 app.use("/stories", storyRoute);
 app.use("/comments", commentRoute);
+app.use("/follow", followRoute);
 
 //Handle invalid JSON error // ✅ Error handler is last
 app.use((err, req, res, next) => {
