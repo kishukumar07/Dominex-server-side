@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import env from "dotenv";
 env.config();
+
+import http from "http";
+
 import connectDB from "./src/config/db.config.js";
 
 import authRoute from "./src/routes/authRoute.js";
@@ -10,9 +13,17 @@ import postRoute from "./src/routes/postRoute.js";
 import commentRoute from "./src/routes/commentRoute.js";
 import storyRoute from "./src/routes/StoryRoute.js";
 import followRoute from "./src/routes/followRoutes.js";
+import msgRoute from "./src/routes/msgRoute.js";
+
+import { setupSocket } from "./sockets/socket.js";
 
 //instance of express
 const app = express();
+
+//HTTP server using Express app
+const server = http.createServer(app);
+// start socket on same server
+setupSocket(server);
 
 app.get("/", (req, res) => {
   res.status(200).send("talking with Server...");
@@ -24,6 +35,7 @@ const allowedOrigins = [
   "http://localhost:4500",
   "http://localhost:4600",
   "http://127.0.0.1:5500", //view file url
+  
 ];
 
 //middlewares
@@ -50,7 +62,7 @@ app.use("/posts", postRoute);
 app.use("/stories", storyRoute);
 app.use("/comments", commentRoute);
 app.use("/follow", followRoute);
-
+app.use("/msg", msgRoute);
 //Handle invalid JSON error // ✅ Error handler is last
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
@@ -64,7 +76,7 @@ app.use((err, req, res, next) => {
 });
 
 //server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running at PORT : ${PORT}`);
 
   connectDB();

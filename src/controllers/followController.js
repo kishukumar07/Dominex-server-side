@@ -1,7 +1,6 @@
 // controllers/followController.js
 import UserModel from "../models/user.models.model.js";
 
-
 const followUser = async (req, res) => {
   try {
     const currentUserId = req.userId;
@@ -59,4 +58,20 @@ const unfollowUser = async (req, res) => {
   }
 };
 
-export { followUser, unfollowUser };
+// function to check if both users follow each other:
+const isMutualFollow = async (userId1, userId2) => {
+  try {
+    const user1 = await UserModel.findById(userId1);
+    const user2 = await UserModel.findById(userId2);
+
+    const user1Follows = user1.followings.includes(userId2);
+    const user2Follows = user2.followings.includes(userId1);
+
+    return user1Follows && user2Follows;
+  } catch (err) {
+    return err;
+  }
+  
+};
+
+export { followUser, unfollowUser, isMutualFollow };

@@ -3,118 +3,94 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DomineX Social App</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>1-on-1 Chat</title>
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #chat-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 font-sans">
+<body>
+  <h2>🔁 Real-Time 1-on-1 Chat</h2>
 
-  <div class="max-w-4xl mx-auto p-4">
-    <h1 class="text-4xl text-center font-bold text-indigo-600 mb-8">DomineX Social App</h1>
+  <div>
+    <input id="senderId" placeholder="Your ID" />
+    <input id="receiverId" placeholder="Receiver ID" />
+    <button onclick="startChat()">Start Chat</button>
+  </div>
 
-    <!-- Auth -->
-    <div class="bg-white p-4 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold text-indigo-500 mb-2">👤 Register</h2>
-      <form id="registerForm" class="space-y-2">
-        <input type="text" placeholder="Username" id="regUsername" class="w-full p-2 border rounded" required />
-        <input type="email" placeholder="Email" id="regEmail" class="w-full p-2 border rounded" required />
-        <input type="password" placeholder="Password" id="regPassword" class="w-full p-2 border rounded" required />
-        <button class="bg-indigo-600 text-white px-4 py-2 rounded">Register</button>
-      </form>
-    </div>
+  <div id="chat-box"></div>
 
-    <!-- Create Post -->
-    <div class="bg-white p-4 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold text-indigo-500 mb-2">📝 Create a Post</h2>
-      <form id="postForm" class="space-y-2">
-        <input type="text" placeholder="Post Title" id="postTitle" class="w-full p-2 border rounded" required />
-        <textarea id="postContent" class="w-full p-2 border rounded" placeholder="What's on your mind?" required></textarea>
-        <button class="bg-indigo-600 text-white px-4 py-2 rounded">Post</button>
-      </form>
-    </div>
-
-    <!-- Feed -->
-    <div class="bg-white p-4 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold text-indigo-500 mb-2">📰 Post Feed</h2>
-      <div id="feed" class="space-y-4"></div>
-    </div>
-
-    <!-- Story -->
-    <div class="bg-white p-4 rounded shadow mb-6">
-      <h2 class="text-xl font-semibold text-indigo-500 mb-2">📖 Share a Story</h2>
-      <form id="storyForm" class="space-y-2">
-        <input type="text" placeholder="Story Title" id="storyTitle" class="w-full p-2 border rounded" required />
-        <textarea id="storyContent" class="w-full p-2 border rounded" placeholder="Your story..." required></textarea>
-        <button class="bg-indigo-600 text-white px-4 py-2 rounded">Post Story</button>
-      </form>
-      <div id="storyList" class="mt-4"></div>
-    </div>
+  <div>
+    <input id="messageInput" placeholder="Type your message..." />
+    <button onclick="handleSendMessage()">Send</button>
   </div>
 
   <script>
-    const apiBase = 'http://localhost:5000'; // replace with your backend base URL
+    const socket = io("http://localhost:4500"); // replace with your backend port
+    let roomId = "";
+    let senderId = "";
+    let receiverId = "";
 
-    const feed = document.getElementById('feed');
+    function startChat() {
+      senderId = document.getElementById("senderId").value;
+      receiverId = document.getElementById("receiverId").value;
+      if (!senderId || !receiverId) return alert("Enter both IDs");
 
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const res = await fetch(`${apiBase}/auth/register`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          username: regUsername.value,
-          email: regEmail.value,
-          password: regPassword.value
-        })
+      socket.emit("joinRoom", { senderId, receiverId });
+
+      socket.on("roomJoined", (rid) => {
+        roomId = rid;
+        console.log("Joined room:", roomId);
       });
-      alert("User Registered");
-    });
 
-    document.getElementById('postForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const res = await fetch(`${apiBase}/posts`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          title: postTitle.value,
-          content: postContent.value
-        })
+      socket.on("oldMessages", (messages) => {
+        // console.log(messages); 
+        document.getElementById("chat-box").innerHTML = "";
+        messages.forEach(displayMessage);
       });
-      const data = await res.json();
-      showPost(data);
-    });
 
-    function showPost(post) {
-      const div = document.createElement('div');
-      div.className = 'border p-4 rounded shadow-sm';
-      div.innerHTML = `
-        <h3 class="text-lg font-semibold">${post.title}</h3>
-        <p class="text-sm text-gray-700">${post.content}</p>
-        <button onclick="likePost('${post._id}')" class="mt-2 text-indigo-600 hover:underline">❤️ Like</button>
-      `;
-      feed.prepend(div);
+      socket.on("receiveMessage", (msg) => {
+        displayMessage(msg);
+      });
+
+      socket.on("error", (err) => {
+        alert(err);
+      });
     }
 
-    async function likePost(postId) {
-      const res = await fetch(`${apiBase}/posts/${postId}/like`, {
-        method: 'PUT'
+    function handleSendMessage() {
+      const message = document.getElementById("messageInput").value;
+      if (!message || !roomId) return;
+      socket.emit("sendMessage", {
+        roomId,
+        senderId,
+        receiverId,
+        message
       });
-      alert("Liked!");
+      document.getElementById("messageInput").value = "";
     }
 
-    document.getElementById('storyForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const res = await fetch(`${apiBase}/story`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          title: storyTitle.value,
-          content: storyContent.value
-        })
-      });
-      const data = await res.json();
-      const storyList = document.getElementById('storyList');
-      storyList.innerHTML += `<p class="text-green-600">${data.title}</p>`;
-    });
+    function displayMessage(msg) {
+      const chatBox = document.getElementById("chat-box");
+      const msgEl = document.createElement("div");
+      msgEl.textContent = `${msg.sender}: ${msg.content}`;
+      chatBox.appendChild(msgEl);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
   </script>
 </body>
 </html>

@@ -97,7 +97,7 @@ const getMessages = async (req, res) => {
 
     res.status(200).json(messages);
   } catch (err) {
-    res.status(500).json({ success: false, err: err.message });
+    res.status(500).json({ success: false, error: "Failed to fetch messages", details: err.message });
   }
 };
 
