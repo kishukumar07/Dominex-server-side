@@ -1,3 +1,5 @@
+//this msg controller is for development purpose only ..
+
 import MsgModel from "../models/message.models.model.js";
 
 // Helper to validate MongoDB ObjectId (if using MongoDB)

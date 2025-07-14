@@ -1,96 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>1-on-1 Chat</title>
-  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    #chat-box {
-      border: 1px solid #ccc;
-      padding: 10px;
-      height: 300px;
-      overflow-y: auto;
-      margin-bottom: 10px;
-    }
-    input, button {
-      padding: 10px;
-      margin: 5px;
-    }
-  </style>
-</head>
-<body>
-  <h2>🔁 Real-Time 1-on-1 Chat</h2>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1-on-1 Chat</title>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <!-- <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      #chat-box {
+        border: 1px solid #ccc;
+        padding: 10px;
+        height: 300px;
+        overflow-y: auto;
+        margin-bottom: 10px;
+      }
+      input,
+      button {
+        padding: 10px;
+        margin: 5px;
+      }
+    </style> -->
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <h2>🔁 Real-Time 1-on-1 Chat</h2>
 
-  <div>
-    <input id="senderId" placeholder="Your ID" />
-    <input id="receiverId" placeholder="Receiver ID" />
-    <button onclick="startChat()">Start Chat</button>
-  </div>
+    <div>
+      <input id="senderId" placeholder="Your ID" />
+      <input id="receiverId" placeholder="Receiver ID" />
+      <button onclick="startChat()">Start Chat</button>
+    </div>
 
-  <div id="chat-box"></div>
+    <div id="chat-box"></div>
 
-  <div>
-    <input id="messageInput" placeholder="Type your message..." />
-    <button onclick="handleSendMessage()">Send</button>
-  </div>
+    <div>
+      <input id="messageInput" placeholder="Type your message..." />
+      <button onclick="handleSendMessage()">Send</button>
+    </div>
 
-  <script>
-    const socket = io("http://localhost:4500"); // replace with your backend port
-    let roomId = "";
-    let senderId = "";
-    let receiverId = "";
+    <script>
+      const socket = io("http://localhost:4500"); // replace with your backend port
+      let roomId = "";
+      let senderId = "";
+      let receiverId = "";
 
-    function startChat() {
-      senderId = document.getElementById("senderId").value;
-      receiverId = document.getElementById("receiverId").value;
-      if (!senderId || !receiverId) return alert("Enter both IDs");
+      function startChat() {
+        
+        // 🧼 Clear previous listeners to prevent duplication
+        socket.off("roomJoined");
+        socket.off("oldMessages");
+        socket.off("receiveMessage");
+        socket.off("error");
 
-      socket.emit("joinRoom", { senderId, receiverId });
+        senderId = document.getElementById("senderId").value;
+        receiverId = document.getElementById("receiverId").value;
+        if (!senderId || !receiverId) return alert("Enter both IDs");
 
-      socket.on("roomJoined", (rid) => {
-        roomId = rid;
-        console.log("Joined room:", roomId);
-      });
+        socket.emit("joinRoom", { senderId, receiverId });
 
-      socket.on("oldMessages", (messages) => {
-        // console.log(messages); 
-        document.getElementById("chat-box").innerHTML = "";
-        messages.forEach(displayMessage);
-      });
+        socket.on("roomJoined", (rid) => {
+          roomId = rid;
+          console.log("Joined room:", roomId);
+        });
 
-      socket.on("receiveMessage", (msg) => {
-        displayMessage(msg);
-      });
+        socket.on("oldMessages", (messages) => {
+          // console.log(messages);
+          document.getElementById("chat-box").innerHTML = "";
+          messages.forEach(displayMessage);
+        });
 
-      socket.on("error", (err) => {
-        alert(err);
-      });
-    }
+        socket.on("receiveMessage", (msg) => {
+          displayMessage(msg);
+        });
 
-    function handleSendMessage() {
-      const message = document.getElementById("messageInput").value;
-      if (!message || !roomId) return;
-      socket.emit("sendMessage", {
-        roomId,
-        senderId,
-        receiverId,
-        message
-      });
-      document.getElementById("messageInput").value = "";
-    }
+        socket.on("error", (err) => {
+          alert(err);
+        });
+      }
 
-    function displayMessage(msg) {
-      const chatBox = document.getElementById("chat-box");
-      const msgEl = document.createElement("div");
-      msgEl.textContent = `${msg.sender}: ${msg.content}`;
-      chatBox.appendChild(msgEl);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-  </script>
-</body>
+      function handleSendMessage() {
+        const message = document.getElementById("messageInput").value;
+        if (!message || !roomId) return;
+        socket.emit("sendMessage", {
+          roomId,
+          senderId,
+          receiverId,
+          message,
+        });
+
+        document.getElementById("messageInput").value = "";
+      }
+
+
+      //Older ->
+
+      // function displayMessage(msg) {
+      //   const chatBox = document.getElementById("chat-box");
+      //   const msgEl = document.createElement("div");
+      //   msgEl.textContent = `${msg.sender}: ${msg.content}`;
+      //   chatBox.appendChild(msgEl);
+      //   chatBox.scrollTop = chatBox.scrollHeight;
+      // }
+
+
+
+function displayMessage(msg) {
+  console.log(msg); 
+  const chatBox = document.getElementById("chat-box");
+  const msgEl = document.createElement("div");
+  msgEl.classList.add("message");
+
+  // senderId = current user, should be left (sender class)
+  if (msg.sender === senderId) {
+    msgEl.classList.add("sender");
+  } else {
+    msgEl.classList.add("receiver");
+  }
+
+  msgEl.textContent = `${msg.content}`;
+  chatBox.appendChild(msgEl);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+
+    </script>
+  </body>
 </html>
