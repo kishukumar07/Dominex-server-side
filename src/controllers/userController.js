@@ -189,7 +189,7 @@ const resetPassword = async (req, res) => {
     if (!user)
       return res.status(404).json({ success: false, msg: "User not found" });
 
-    const isVerified = otp === user.otp && user.otpExpire > Date.now();
+    const isVerified = otp == user.otp && user.otpExpire > Date.now();
     if (!isVerified)
       return res
         .status(400)

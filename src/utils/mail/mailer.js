@@ -21,7 +21,8 @@ const sendEmail = async ({ email, emailType, val }) => {
       templateMsg = generateOtpEmailTemplate(val.otp);
       sub = "Your OTP Code - Verify Your Account";
     } else if (emailType === "RESET_PASSWORD") {
-      templateMsg = ResetPasswordOtpTemplate(val.otp);
+      console.log(val);
+      templateMsg = ResetPasswordOtpTemplate(val);
       sub = "Reset Your Password - OTP Inside";
     } else if (emailType === "UPDATE_EMAIL") {
       templateMsg = UpdateEmailOtpTemplate(val.otp); //bug

@@ -15,7 +15,7 @@ import storyRoute from "./src/routes/StoryRoute.js";
 import followRoute from "./src/routes/followRoutes.js";
 import msgRoute from "./src/routes/msgRoute.js";
 
-import { setupSocket } from "./sockets/socket.js";
+import { setupSocket } from "./src/sockets/socket.js";
 
 //instance of express
 const app = express();

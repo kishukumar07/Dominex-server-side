@@ -10,17 +10,19 @@ const authMiddleware = (req, res, next) => {
   }
 
   const token = authHeader.split(" ")[1];
-
+  // console.log(token);
   try {
-    // Verify the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Verify the token
+    // console.log(decoded);
 
-    console.log(decoded);
     // Attach user data to request object
     req.userId = decoded.userId;
     next(); // Continue to the next middleware or route
   } catch (error) {
-    return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    return res
+      .status(401)
+      .json({ message: "Unauthorized: Invalid Or Expired token" });
   }
 };
 
