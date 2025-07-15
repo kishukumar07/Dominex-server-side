@@ -2,7 +2,8 @@
 import { Server } from "socket.io";
 import { isMutualFollow } from "../controllers/followController.js";
 import { getMessages, sendMessage } from "../controllers/msgController2.js";
-import getBotResponse from "../chatBot/botLogic_OpenAi.js";
+// import getBotResponse from "../chatBot/botLogic_OpenAi.js";
+import getBotResponse from "../chatBot/botLogin_geminiAi.js";
 
 export const setupSocket = (server) => {
   const io = new Server(server, {
