@@ -32,10 +32,8 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT;
 
 const allowedOrigins = [
-  "http://localhost:4500",
-  "http://localhost:4600",
-  "http://127.0.0.1:5500", //view file url
-  
+  process.env.CLIENT_URL,
+  'http://localhost:3000'
 ];
 
 //middlewares

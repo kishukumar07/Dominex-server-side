@@ -53,13 +53,11 @@ const register = async (req, res) => {
       val: { otp: otpCred.otp },
     });
 
-    newUser.password = undefined; // remove from response
-  const token = setToken(newUser._id);
+  const token = setToken(newUser._id,res);
 
     return res.status(201).json({
       success: true,
       message: "User registered successfully",
-      data: newUser,
       token
     });
   } catch (error) {
