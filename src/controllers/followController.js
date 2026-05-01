@@ -16,6 +16,10 @@ const followUser = async (req, res) => {
 
     const currentUser = await UserModel.findById(currentUserId);
     const targetUser = await UserModel.findById(targetUserId);
+    
+    if (!currentUser || !targetUser) {
+      return res.status(404).json({ msg: "User not found" });
+    }
 
     //a's id to b's followers ...
     //b's id to a's following ...
@@ -45,6 +49,13 @@ const unfollowUser = async (req, res) => {
     }
     const currentUser = await UserModel.findById(currentUserId);
     const targetUser = await UserModel.findById(targetUserId);
+    
+    if (!currentUser || !targetUser) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+    if (currentUserId === targetUserId) {
+      return res.status(400).json({ msg: "Cannot unfollow yourself" });
+    }
 
     targetUser.followers.pull(currentUserId);
     currentUser.followings.pull(targetUserId);
@@ -69,7 +80,8 @@ const isMutualFollow = async (userId1, userId2) => {
 
     return user1Follows && user2Follows;
   } catch (err) {
-    return err;
+    console.error("isMutualFollow error:", err.message)
+    return false;
   }
   
 };

@@ -18,11 +18,12 @@ router.post("/", authenticate, upload.single("image"), createPost); //authentica
 
 // Get all posts
 router.get("/", authenticate, getAllPosts);
+// Get all posts of a user
+router.get("/user/:userId", getUserPosts);
+
 // Get single post
 router.get("/:id", authenticate, getPostById);
 
-// Get all posts of a user
-router.get("/user/:userId", getUserPosts);
 
 //authorizized Routes ...
  

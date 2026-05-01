@@ -11,7 +11,10 @@ const createPost = async (req, res) => {
       return res.status(400).json({ error: "No file uploaded" });
     }
     const uploaded = await uploadOnCloudinary(req.file.path);
-    console.log(uploaded.url);
+    if (!uploaded || !uploaded.url) {
+      return res.status(500).json({ error: "Failed to upload image" });
+    }
+    // console.log(uploaded.url);
     // we will post this url in place of pics....
     const photo = uploaded.url;
     const author = req.userId;
@@ -203,7 +206,7 @@ const updatePost = async (req, res) => {
     }
 
     // Authorization: only author can update
-    if (post.author != userId) {
+    if (post.author !== userId) {
       return res.status(403).json({ success: false, msg: "Unauthorized" });
     }
 
@@ -232,7 +235,7 @@ const deletePost = async (req, res) => {
     }
 
     // Authorization: only author can delete
-    if (post.author != userId) {
+    if (post.author !== userId) {
       return res.status(403).json({ success: false, msg: "Unauthorized" });
     }
 

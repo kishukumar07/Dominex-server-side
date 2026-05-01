@@ -4,7 +4,7 @@ env.config();
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// ✅ Bot's system prompt (strict app-only guidance)
+//  Bot's system prompt (strict app-only guidance)
 const systemPrompt = `
 You are a helpful assistant for a social media app.
 Only answer questions related to this app — like its features, usage, profile settings, privacy, and updates.
@@ -12,7 +12,7 @@ If the user asks about "settings", explain that they can go to Profile > Setting
 If the question is outside the app, reply: "Sorry, I can only help with app-related questions."
 `;
 
-// ✅ Bot response function
+
 const getBotResponse = async (userMessage) => {
   try {
     const messages = [
@@ -39,7 +39,7 @@ const getBotResponse = async (userMessage) => {
     console.error("Bot error:", err.message);
     return {
       success: false,
-      error: `⚠️ Sorry, I couldn't process your request right now. (${err.message})`,
+      error: ` Sorry, I couldn't process your request right now. (${err.message})`,
     };
   }
 };

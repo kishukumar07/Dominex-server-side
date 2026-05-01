@@ -1,7 +1,6 @@
-import mongoose, { mongo } from "mongoose";
 import StoryModel from "../models/story.models.model.js";
 import uploadOnCloudinary from "../utils/media/Upload.on.Cloudinary.js";
-import { request } from "express";
+
 
 const createStory = async (req, res) => {
   try {
@@ -10,8 +9,9 @@ const createStory = async (req, res) => {
     }
     const uploaded = await uploadOnCloudinary(req.file.path);
     if (!uploaded || !uploaded.url) {
-      return res.status(500).json({ error: "Failed to upload media" });
+      return res.status(500).json({ error: "Upload failed, try again" });
     }
+
     // Ensure req.userId is set (should be set by authentication middleware)
     const author = req.userId;
     // console.log(uploaded.url, author);
@@ -128,7 +128,11 @@ const updateStory = async (req, res) => {
       });
     }
 
-    story.viewers.push(authorId);
+  
+    if (!story.viewers.includes(authorId)) {
+      story.viewers.push(authorId);
+    }
+
     const UpdatedStory = await story.save();
 
     res.status(200).json({
@@ -157,7 +161,14 @@ const deleteStory = async (req, res) => {
     }
 
     const story = await StoryModel.findById(storyId);
-   
+
+    if (!story) {
+      return res.status(404).json({
+        success: false,
+        msg: "No Story Found",
+      });
+    }
+
     if (author != story.author) {
       return res.status(403).json({
         success: false,

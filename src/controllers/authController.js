@@ -14,7 +14,7 @@ const register = async (req, res) => {
     const { name, username, email, phone, password } = req.body;
 
     if (!name || !username || !email || !phone || !password) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
         message:
           "All fields (name, username, email, phone, password) are required",
@@ -29,36 +29,41 @@ const register = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "User already exists with this email, phone, or username",
+        message: "User already Registered !",
       });
     }
 
     const otpCred = generateOtp();
 
+    //DB first → Email second → rollback on failure
     const newUser = await UserModel.create({
       name,
       username,
       email,
       phone,
-      password,
+      password,   
       isVerified: false,
       otp: otpCred.otp,
       otpExpire: otpCred.expire,
     });
 
     // Send OTP email
-  await  sendEmail({
-      email: newUser.email,
-      emailType: "OTP",
-      val: { otp: otpCred.otp },
-    });
 
-  const token = setToken(newUser._id,res);
+    try {
+      await sendEmail({
+        email: newUser.email,
+        emailType: "OTP",
+        val: { otp: otpCred.otp },
+      });
+    } catch (err) {
+             await userModel.findByIdAndDelete(newUser._id)
+             throw err;
+    }
 
     return res.status(201).json({
       success: true,
-      message: "User registered successfully",
-      token
+      message: "User registered. Please verify your email.",
+      data: { _id: newUser._id, email: newUser.email } ,
     });
   } catch (error) {
     if (error.name === "ValidationError") {
@@ -68,8 +73,7 @@ const register = async (req, res) => {
         error: Object.values(error.errors).map((err) => err.message),
       });
     }
-
-    console.error("Registration error:", error);
+    // console.error("Registration error:", error);
     return res.status(500).json({
       success: false,
       message: "Internal server error",

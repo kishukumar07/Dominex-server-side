@@ -1,106 +1,38 @@
-//this msg controller is for development purpose only ..
+// src/controllers/msgController.js
+// HTTP layer only — all DB logic lives in message.service.js
 
-import MsgModel from "../models/message.models.model.js";
+import { getConversation } from "../services/message.service.js";
 
-// Helper to validate MongoDB ObjectId (if using MongoDB)
-import mongoose from "mongoose";
+/**
+ * GET /api/messages/:userId1/:userId2
+ * Fetch paginated conversation history between two users.
+ *
+ * Query params:
+ *   limit  - number of messages (default 30, max 100)
+ *   before - ISO timestamp for cursor-based pagination (load older messages on scroll)
+ *
+ * Example:
+ *   First load:   GET /messages/userA/userB
+ *   Scroll up:    GET /messages/userA/userB?before=2024-01-15T10:00:00.000Z
+ */
+export const getMessages = async (req, res) => {
+  const { userId1, userId2 } = req.params;
+  const { limit, before } = req.query;
 
-const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
-
-const sendMessage = async (req, res) => {
-  const { senderId, receiverId, content } = req.body;
-
-  // Check for missing fields
-  if (!senderId || !receiverId || typeof content !== "string") {
-    return res.status(400).json({
-      success: false,
-      msg: "Request body must contain senderId, receiverId, and content.",
-    });
+  // Authorization: a user can only fetch their own conversations
+  if (req.userId !== userId1 && req.userId !== userId2) {
+    return res.status(403).json({ success: false, msg: "Not authorized to view this conversation." });
   }
 
-  // Prevent sending message to self
-  if (senderId === receiverId) {
-    return res.status(400).json({
-      success: false,
-      msg: "Sender and receiver cannot be the same user.",
-    });
+  const result = await getConversation(userId1, userId2, limit, before);
+
+  if (!result.success) {
+    return res.status(400).json({ success: false, msg: result.error });
   }
 
-  // Validate ObjectIds
-  if (!isValidObjectId(senderId) || !isValidObjectId(receiverId)) {
-    return res.status(400).json({
-      success: false,
-      msg: "Invalid senderId or receiverId.",
-    });
-  }
-
-  // Prevent empty messages
-  if (!content.trim()) {
-    return res.status(400).json({
-      success: false,
-      msg: "Message content cannot be empty.",
-    });
-  }
-
-  try {
-    const message = await MsgModel.create({
-      sender: senderId,
-      receiver: receiverId,
-      content: content.trim(),
-    });
-    return res.status(201).json(message);
-  } catch (error) {
-    return res.status(500).json({ error: "Failed to send message" });
-  }
+  return res.status(200).json({
+    success: true,
+    messages: result.messages,
+    hasMore: result.hasMore,
+  });
 };
-
-const getMessages = async (req, res) => {
-  try {
-    const { userId1, userId2 } = req.params;
-
-    // Check for missing params
-    if (!userId1 || !userId2) {
-      return res.status(400).json({
-        success: false,
-        msg: "Url should contain both userId1 and userId2",
-      });
-    }
-
-    // Validate ObjectIds
-    if (!isValidObjectId(userId1) || !isValidObjectId(userId2)) {
-      return res.status(400).json({
-        success: false,
-        msg: "Invalid userId1 or userId2.",
-      });
-    }
-
-    // Prevent fetching messages with self
-    if (userId1 === userId2) {
-      return res.status(400).json({
-        success: false,
-        msg: "Cannot fetch messages between the same user.",
-      });
-    }
-
-    const messages = await MsgModel.find({
-      $or: [
-        { sender: userId1, receiver: userId2 },
-        { sender: userId2, receiver: userId1 },
-      ],
-    }).sort("timestamp");
-
-    // No messages found
-    if (!messages.length) {
-      return res.status(404).json({
-        success: false,
-        msg: "No messages found between these users.",
-      });
-    }
-
-    res.status(200).json(messages);
-  } catch (err) {
-    res.status(500).json({ success: false, error: "Failed to fetch messages", details: err.message });
-  }
-};
-
-export { getMessages, sendMessage };

@@ -3,7 +3,7 @@ dotenv.config();
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// ✅ Bot's system prompt
+//system prompt
 const systemPrompt = `
 You are a helpful assistant for a social media app.
 Only answer questions related to this app — like its features, usage, profile settings, privacy, and updates.

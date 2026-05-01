@@ -40,7 +40,7 @@ const sendEmail = async ({ email, emailType, val }) => {
     return info;
   } catch (err) {
     console.error("Error sending mail : ", err);
-    return err;
+    throw err;
   }
 };
 

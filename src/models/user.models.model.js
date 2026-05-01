@@ -192,7 +192,7 @@ UserSchema.pre("save", async function (next) {
   }
 });
 
-// 🔐 Method to compare password
+// Method to compare password
 UserSchema.methods.comparePassword = function (password) {
   return bcrypt.compare(password, this.password);
 };
