@@ -1,0 +1,35 @@
+# Dominex Backend — Node.js Dependencies
+# Run: npm install (package.json handles everything)
+# This file is for reference only
+
+# ─── Core Framework ──────────────────────────────────────────
+express
+
+# ─── Database ────────────────────────────────────────────────
+mongoose
+
+# ─── Real-time ───────────────────────────────────────────────
+socket.io
+
+# ─── Authentication & Security ───────────────────────────────
+jsonwebtoken
+bcrypt
+
+# ─── Media & File Handling ───────────────────────────────────
+cloudinary
+multer
+
+# ─── Email ───────────────────────────────────────────────────
+nodemailer
+
+# ─── AI Providers ────────────────────────────────────────────
+@google/generative-ai
+openai
+
+# ─── Environment & Config ────────────────────────────────────
+dotenv
+
+# ─── Built-in Node Modules (no install needed) ───────────────
+# crypto
+# fs
+# path
