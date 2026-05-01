@@ -1,7 +1,11 @@
 import UserModel from "../models/user.models.model.js";
-import { setToken } from "../utils/auth/token.js";
 import generateOtp from "../utils/auth/generateOtp.js";
 import sendEmail from "../utils/mail/mailer.js";
+import { setRefreshToken, getAcessToken } from "../utils/auth/token.js";
+import { RefTokenModel } from "../models/tokens/refreshToken.js";
+import jwt from "jsonwebtoken";
+
+// import {BlacklistModel} from "../models/tokens/blcklist.model.js";
 
 const register = async (req, res) => {
   try {
@@ -41,7 +45,7 @@ const register = async (req, res) => {
       username,
       email,
       phone,
-      password,   
+      password,
       isVerified: false,
       otp: otpCred.otp,
       otpExpire: otpCred.expire,
@@ -56,14 +60,14 @@ const register = async (req, res) => {
         val: { otp: otpCred.otp },
       });
     } catch (err) {
-             await userModel.findByIdAndDelete(newUser._id)
-             throw err;
+      await UserModel.findByIdAndDelete(newUser._id);
+      throw err;
     }
 
     return res.status(201).json({
       success: true,
       message: "User registered. Please verify your email.",
-      data: { _id: newUser._id, email: newUser.email } ,
+      data: { _id: newUser._id, email: newUser.email },
     });
   } catch (error) {
     if (error.name === "ValidationError") {
@@ -123,7 +127,9 @@ const login = async (req, res) => {
       });
     }
 
-    const token = setToken(user._id);
+    //acess token here ...
+    await setRefreshToken(user._id, res);
+    const accesstoken = getAcessToken(user._id);
 
     return res.status(200).json({
       success: true,
@@ -134,7 +140,7 @@ const login = async (req, res) => {
         email: user.email,
         isVerified: user.isVerified,
       },
-      token,
+      token: accessToken,
     });
   } catch (err) {
     console.log(err);
@@ -174,6 +180,83 @@ const verify = async (req, res) => {
   }
 };
 
-const logout = () => {};
+const logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies?.token;
 
-export { register, login, verify, logout };
+    if (!refreshToken) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Already logged out." });
+    }
+
+    // Remove refresh token from DB
+    await RefTokenModel.findOneAndDelete({ token: refreshToken });
+
+    // Clear the cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+    });
+
+    return res
+      .status(200)
+      .json({ success: true, msg: "Logged out successfully." });
+  } catch (err) {
+    console.error("Logout error:", err.message);
+    return res.status(500).json({ success: false, msg: "Logout failed." });
+  }
+};
+
+const refresh = async (req, res) => {
+  // Refresh flow —> cookie → verify JWT → check DB → generate new accessToken → return it
+  const refreshToken = req.cookies?.token;
+
+  if (!refreshToken) {
+    return res.status(401).json({
+      message: "Unauthorized ",
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+    if (!(decoded && decoded.userId)) {
+      return res
+        .status(401)
+        .json({
+          message: "Unauthorized: Invalid Or Expired token",
+          success: false,
+        });
+    }
+
+    const existingToken = await RefTokenModel.findOne({ token: refreshToken });
+
+    if (!existingToken) {
+      return res
+        .status(401)
+        .json({
+          message: "Unauthorized: Invalid Or Expired token",
+          success: false,
+        });
+    }
+
+    const token = getAcessToken(decoded.userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "TokenRefreshed successfully",
+      token,
+    });
+  } catch (error) {
+    return res
+      .status(401)
+      .json({
+        message: "Unauthorized: Invalid Or Expired token",
+        success: false,
+      });
+  }
+};
+
+export { register, verify, login, logout, refresh };
