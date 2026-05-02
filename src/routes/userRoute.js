@@ -7,7 +7,6 @@ import {
   resetPassword,
   updateEmail,
   verifyUpdateEmailOtp,
-  updatePhone,
 } from "../controllers/userController.js";
 import authenticate from "../middlewares/auth.middleware.js";
 
@@ -67,6 +66,6 @@ router.patch("/:id", authenticate, updateUserInfo);
  */
 router.patch("/:id/password", authenticate, updatePassword);
 
-router.patch("/:id/phone", authenticate, updatePhone);
+
 
 export default router;

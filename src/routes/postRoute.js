@@ -12,7 +12,6 @@ import {
   getUserPosts,
 } from "../controllers/postController.js";
 
-
 // Create post
 router.post("/", authenticate, upload.single("image"), createPost); //authentication only
 
@@ -24,9 +23,8 @@ router.get("/user/:userId", getUserPosts);
 // Get single post
 router.get("/:id", authenticate, getPostById);
 
-
 //authorizized Routes ...
- 
+
 // Update post
 router.put("/:id", authenticate, updatePost);
 

@@ -8,9 +8,9 @@ const router=Router();
 
 
 router.post('/register',register); 
-router.post("/verifyOtp",authMiddleware,verify);
+router.post("/verifyOtp",verify);
 router.post('/login',login); 
-router.post('/logout',logout);  
+router.post('/logout',authMiddleware,logout);  
 router.get('/refresh',refresh); 
 
 export default router;

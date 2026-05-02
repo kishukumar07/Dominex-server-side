@@ -87,11 +87,17 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
+  if (!req.body) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing request body" });
+  }
+
   const { email, phone, password } = req.body;
 
   try {
-    if (!email && !phone) {
-      return res.status(400).json({ message: "Email or Phone required" });
+    if ((!email || !phone) && !password ) {
+      return res.status(400).json({ message: "Required : email or phone and password " });
     }
     const user = await UserModel.findOne({ $or: [{ email }, { phone }] });
 
@@ -129,7 +135,7 @@ const login = async (req, res) => {
 
     //acess token here ...
     await setRefreshToken(user._id, res);
-    const accesstoken = getAcessToken(user._id);
+     const accessToken = await getAcessToken(user._id);
 
     return res.status(200).json({
       success: true,
@@ -140,7 +146,7 @@ const login = async (req, res) => {
         email: user.email,
         isVerified: user.isVerified,
       },
-      token: accessToken,
+      token: `${accessToken}`,
     });
   } catch (err) {
     console.log(err);
@@ -152,12 +158,11 @@ const login = async (req, res) => {
 };
 
 const verify = async (req, res) => {
-  const { otp } = req.body;
-  const userId = req.userId;
+  const { otp, userId } = req.body;
 
   try {
     if (!otp || !userId) {
-      return res.status(400).json({ message: "Otp and UserId required" });
+      return res.status(400).json({ message: "otp and userId required" });
     }
     const user = await UserModel.findById(userId);
     if (!user) {
@@ -172,7 +177,7 @@ const verify = async (req, res) => {
     user.otpExpire = null;
     user.isVerified = true;
     await user.save();
-    res.status(200).json({ message: "User verified successfully", data: user });
+    res.status(200).json({ message: "Email verified successfully" });
   } catch (err) {
     res
       .status(500)
@@ -223,23 +228,19 @@ const refresh = async (req, res) => {
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 
     if (!(decoded && decoded.userId)) {
-      return res
-        .status(401)
-        .json({
-          message: "Unauthorized: Invalid Or Expired token",
-          success: false,
-        });
+      return res.status(401).json({
+        message: "Unauthorized: Invalid Or Expired token",
+        success: false,
+      });
     }
 
     const existingToken = await RefTokenModel.findOne({ token: refreshToken });
 
     if (!existingToken) {
-      return res
-        .status(401)
-        .json({
-          message: "Unauthorized: Invalid Or Expired token",
-          success: false,
-        });
+      return res.status(401).json({
+        message: "Unauthorized: Invalid Or Expired token",
+        success: false,
+      });
     }
 
     const token = getAcessToken(decoded.userId);
@@ -250,12 +251,10 @@ const refresh = async (req, res) => {
       token,
     });
   } catch (error) {
-    return res
-      .status(401)
-      .json({
-        message: "Unauthorized: Invalid Or Expired token",
-        success: false,
-      });
+    return res.status(401).json({
+      message: "Unauthorized: Invalid Or Expired token",
+      success: false,
+    });
   }
 };
 

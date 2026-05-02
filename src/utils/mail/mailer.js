@@ -6,7 +6,7 @@ import UpdateEmailOtpTemplate from "./templates/UpdateEmailOtpTemplate.js";
 const sendEmail = async ({ email, emailType, val }) => {
   try {
     const transport = nodemailer.createTransport({
-      // service:"gmail",
+      // service:"smtp.gmail.com",
       host: process.env.EMAIL_PROVIDER,
       port: process.env.EMAIL_PORT,
       auth: {

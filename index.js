@@ -61,7 +61,7 @@ app.use("/stories", storyRoute);
 app.use("/comments", commentRoute);
 app.use("/follow", followRoute);
 app.use("/msg", msgRoute);
-//Handle invalid JSON error // ✅ Error handler is last
+//Handle invalid JSON error //  Error handler is last
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     console.error("Invalid JSON received:", err.message);

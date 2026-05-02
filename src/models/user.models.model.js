@@ -180,7 +180,7 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-// 🔒 Pre-save middleware for hashing password
+//  Pre-save middleware for hashing password
 UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   try {

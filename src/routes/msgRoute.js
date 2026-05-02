@@ -1,10 +1,9 @@
 import { Router } from "express";
 import authenticate from "../middlewares/auth.middleware.js";
-import { getMessages, sendMessage } from "../controllers/msgController.js";
+import { getMessages } from "../controllers/msgController.js";
 
 const router = Router();
 router.use(authenticate);
-
 
 /**
  * GET /api/messages/:userId1/:userId2

@@ -18,6 +18,7 @@ const userProfile = async (req, res) => {
       username: 1,
       bio: 1,
       email: 1,
+      phone: 1,
       profilePic: 1,
       bannerPic: 1,
       isVerified: 1,
@@ -50,7 +51,15 @@ const userProfile = async (req, res) => {
 };
 
 const updateUserInfo = async (req, res) => {
-  console.log(1);
+  // console.log(1);
+
+  if (!req.body) {
+    return res.status(400).json({
+      success: false,
+      msg: "Invalid Request Body !",
+    });
+  }
+
   const u_id = req.userId;
   const givenUserid = req.params.id;
 
@@ -68,6 +77,7 @@ const updateUserInfo = async (req, res) => {
       "websiteUrl",
       "gender",
       "dateOfBirth",
+      "phone",
     ];
 
     const updates = {};
@@ -86,7 +96,7 @@ const updateUserInfo = async (req, res) => {
 
     res
       .status(200)
-      .json({ success: true, msg: "User info updated", data: user });
+      .json({ success: true, msg: "User info updated", data: updates });
   } catch (err) {
     res
       .status(500)
@@ -102,12 +112,20 @@ const updatePassword = async (req, res) => {
     return res.status(403).json({ success: false, msg: "Not authorized" });
   }
 
+  if (!req.body) {
+    return res.status(400).json({
+      success: false,
+      msg: "Invalid Request Body!",
+    });
+  }
+
   const { oldPassword, newPassword } = req.body;
 
   if (!oldPassword || !newPassword) {
-    return res
-      .status(400)
-      .json({ success: false, msg: "Both Old and new Password Required" });
+    return res.status(400).json({
+      success: false,
+      msg: "Both oldPassword and newPassword Required",
+    });
   }
 
   try {
@@ -117,12 +135,14 @@ const updatePassword = async (req, res) => {
 
     const isValid = await user.comparePassword(oldPassword);
     if (!isValid)
-      return res.status(401).json({ success: false, msg: "Wrong password" });
+      return res.status(401).json({ success: false, msg: "Wrong oldPassword" });
 
     user.password = newPassword;
     await user.save();
 
-    res.status(200).json({ success: true, msg: "Password updated" });
+    res
+      .status(200)
+      .json({ success: true, msg: "Password updated", data: { newPassword } });
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -133,12 +153,19 @@ const updatePassword = async (req, res) => {
 };
 
 const requestResetEmail = async (req, res) => {
+  if (!req.body) {
+    return res.status(400).json({
+      success: false,
+      msg: "Invalid Request Body !",
+    });
+  }
+
   const { email, phone, username } = req.body;
 
   if (!email && !phone && !username) {
     return res
       .status(400)
-      .json({ success: false, msg: "Either Email,phone,username is Required" });
+      .json({ success: false, msg: "Either email,phone,username is Required" });
   }
 
   try {
@@ -160,7 +187,10 @@ const requestResetEmail = async (req, res) => {
       val: otpData.otp,
     });
 
-    res.status(200).json({ success: true, userId: user._id, info });
+    res.status(200).json({
+      success: true,
+      msg: "OTP Sent to Registered Email use it to reset your password ",
+    });
   } catch (err) {
     res
       .status(500)
@@ -169,11 +199,18 @@ const requestResetEmail = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
+  if (!req.body) {
+    return res.status(400).json({
+      success: false,
+      msg: "Invalid Request Body!",
+    });
+  }
+
   const { otp, newPassword } = req.body;
   const userId = req.params.id;
   // console.log(req.params);
   if (!otp) {
-    return res.status(400).json({ success: false, msg: "OTP is required" });
+    return res.status(400).json({ success: false, msg: "otp is required" });
   }
   if (!userId) {
     return res.status(400).json({ success: false, msg: "User ID is required" });
@@ -181,7 +218,7 @@ const resetPassword = async (req, res) => {
   if (!newPassword) {
     return res
       .status(400)
-      .json({ success: false, msg: "New password is required" });
+      .json({ success: false, msg: "newPassword is required" });
   }
 
   try {
@@ -201,7 +238,13 @@ const resetPassword = async (req, res) => {
     user.isVerified = true;
     await user.save();
 
-    res.status(200).json({ success: true, msg: "Password reset successful" });
+    res.status(200).json({
+      success: true,
+      msg: "Password reset successful",
+      data: {
+        newPassword,
+      },
+    });
   } catch (err) {
     res.status(500).json({
       success: false,
@@ -212,11 +255,17 @@ const resetPassword = async (req, res) => {
 };
 
 const updateEmail = async (req, res) => {
+  if (!req.body) {
+    return res
+      .status(400)
+      .json({ success: false, msg: "Invalid Request Body" });
+  }
+
   const { newEmail } = req.body;
   const userId = req.userId;
 
   if (!newEmail)
-    return res.status(400).json({ success: false, msg: "New email required" });
+    return res.status(400).json({ success: false, msg: "newEmail required" });
   //authorization
   if (req.params.id && req.params.id !== userId) {
     return res.status(403).json({ success: false, msg: "Unauthorized action" });
@@ -257,6 +306,13 @@ const updateEmail = async (req, res) => {
 };
 
 const verifyUpdateEmailOtp = async (req, res) => {
+  if (!req.body) {
+    return res.status(400).json({
+      success: false,
+      msg: "Invalid Request Body!",
+    });
+  }
+
   const { otp } = req.body;
   const userId = req.userId;
 
@@ -305,12 +361,6 @@ const verifyUpdateEmailOtp = async (req, res) => {
   }
 };
 
-const updatePhone = (req, res) => {
-  res
-    .status(501)
-    .json({ success: false, msg: "Phone update not implemented yet" });
-};
-
 export {
   userProfile,
   updateUserInfo,
@@ -319,5 +369,4 @@ export {
   resetPassword,
   updateEmail,
   verifyUpdateEmailOtp,
-  updatePhone,
 };

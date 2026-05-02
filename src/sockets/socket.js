@@ -38,7 +38,7 @@ export const setupSocket = (server) => {
         if (!isBot) {
           const mutual = await isMutualFollow(senderId, receiverId);
           if (!mutual) {
-            return socket.emit("error", "⚠️ Both users must follow each other to chat.");
+            return socket.emit("error", " Both users must follow each other to chat.");
           }
         }
 
@@ -72,7 +72,7 @@ export const setupSocket = (server) => {
         socket.emit("roomJoined", roomId);
       } catch (err) {
         console.error("joinRoom error:", err.message);
-        socket.emit("error", "❌ Failed to join room. Please try again.");
+        socket.emit("error", " Failed to join room. Please try again.");
       }
     });
 

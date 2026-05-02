@@ -155,6 +155,7 @@ npm start
 | POST | `/api/auth/verify` | Verify OTP |
 | POST | `/api/auth/login` | Login |
 | POST | `/api/auth/logout` | Logout |
+| POST | `/api/auth/refresh` | GetAcessToken via Ref. Token |
 
 ### Users
 | Method | Endpoint | Description |
