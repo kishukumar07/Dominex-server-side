@@ -41,7 +41,7 @@ const unfollowUser = async (req, res) => {
   try {
     const currentUserId = req.userId;
     if (!req.body) {
-      return res.status(400).json({ msg: "Invalid request" });
+      return res.status(400).json({ msg: "Invalid request body!" });
     }
     const { targetUserId } = req.body; //or req.params.id
     if (!targetUserId) {

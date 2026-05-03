@@ -13,10 +13,11 @@ import {
 } from "../controllers/postController.js";
 
 // Create post
-router.post("/", authenticate, upload.single("image"), createPost); //authentication only
+router.post("/", authenticate, upload.single("file"), createPost); //authentication only
 
 // Get all posts
 router.get("/", authenticate, getAllPosts);
+
 // Get all posts of a user
 router.get("/user/:userId", getUserPosts);
 

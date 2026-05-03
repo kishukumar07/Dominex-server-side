@@ -31,10 +31,7 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT;
 
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  'http://localhost:3000'
-];
+const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:3000"];
 
 //middlewares
 app.use(
@@ -47,7 +44,7 @@ app.use(
       }
     },
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json({ limit: "20mb" }));

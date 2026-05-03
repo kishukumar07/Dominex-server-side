@@ -1,6 +1,6 @@
 import StoryModel from "../models/story.models.model.js";
 import uploadOnCloudinary from "../utils/media/Upload.on.Cloudinary.js";
-
+import mongoose from "mongoose";
 
 const createStory = async (req, res) => {
   try {
@@ -128,7 +128,6 @@ const updateStory = async (req, res) => {
       });
     }
 
-  
     if (!story.viewers.includes(authorId)) {
       story.viewers.push(authorId);
     }

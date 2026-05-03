@@ -1,14 +1,13 @@
 // import mongoose from "mongoose";
 import PostModel from "../models/post.models.model.js";
+import UserModel from "../models/user.models.model.js";
 import uploadOnCloudinary from "../utils/media/Upload.on.Cloudinary.js";
 import mongoose from "mongoose";
 
 const createPost = async (req, res) => {
   try {
-    // console.log(req.file);
-    // need to check
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
+    if (!req.file || req.title) {
+      return res.status(400).json({ error: "No file or Title uploaded" });
     }
     const uploaded = await uploadOnCloudinary(req.file.path);
     if (!uploaded || !uploaded.url) {
@@ -16,13 +15,9 @@ const createPost = async (req, res) => {
     }
     // console.log(uploaded.url);
     // we will post this url in place of pics....
+    const title = req.title;
     const photo = uploaded.url;
     const author = req.userId;
-    const { title } = req.body;
-
-    if (!title) {
-      return res.status(400).json({ error: "Title is required" });
-    }
 
     // console.log(author, title, photo);
 
@@ -32,7 +27,16 @@ const createPost = async (req, res) => {
       title,
       photo,
     });
-    console.log(newPost);
+
+    // console.log(newPost);
+    await UserModel.findByIdAndUpdate(
+      req.userId,
+      {
+        $push: { posts: newPost._id },
+      },
+      { new: true },
+    );
+
     return res.status(201).json(newPost);
   } catch (error) {
     console.error(error);
@@ -206,7 +210,8 @@ const updatePost = async (req, res) => {
     }
 
     // Authorization: only author can update
-    if (post.author !== userId) {
+   
+    if (!post.author.equals(userId)) {
       return res.status(403).json({ success: false, msg: "Unauthorized" });
     }
 
@@ -235,7 +240,7 @@ const deletePost = async (req, res) => {
     }
 
     // Authorization: only author can delete
-    if (post.author !== userId) {
+    if (!post.author.equals(userId)) {
       return res.status(403).json({ success: false, msg: "Unauthorized" });
     }
 

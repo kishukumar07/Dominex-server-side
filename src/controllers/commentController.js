@@ -5,13 +5,18 @@ import mongoose from "mongoose";
 // Create a comment on a post
 const createComment = async (req, res) => {
   try {
+    if (!req.body) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Invalid Request Body !" });
+    }
     const { content, postId } = req.body;
     const author = req.userId;
 
     if (!content || !postId) {
       return res
         .status(400)
-        .json({ success: false, msg: "Content and postId are required" });
+        .json({ success: false, msg: "content and postId are required" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(postId)) {
@@ -43,6 +48,11 @@ const createComment = async (req, res) => {
 // Create a reply to a comment (nested comment)
 const createReplyComment = async (req, res) => {
   try {
+    if (!req.body) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Invalid Request Body !" });
+    }
     const { content } = req.body;
     const { id: parentCommentId } = req.params;
     const author = req.userId;
@@ -91,6 +101,11 @@ const createReplyComment = async (req, res) => {
 // Update a comment
 const updateComment = async (req, res) => {
   try {
+    if (!req.body) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "Invalid Request Body !" });
+    }
     const { id } = req.params;
     const { content } = req.body;
     const userId = req.userId;
@@ -143,7 +158,7 @@ const deleteComment = async (req, res) => {
     // Remove comment from post's comment array
     await PostModel.updateOne(
       { _id: comment.post },
-      { $pull: { comment: comment._id } }
+      { $pull: { comment: comment._id } },
     );
 
     await comment.deleteOne();
