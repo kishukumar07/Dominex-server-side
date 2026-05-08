@@ -6,8 +6,8 @@ import { RefTokenModel } from "../models/tokens/refreshToken.js";
 import jwt from "jsonwebtoken";
 
 // import {BlacklistModel} from "../models/tokens/blcklist.model.js";
-
 const register = async (req, res) => {
+  let newUser = null;
   try {
     if (!req.body) {
       return res
@@ -18,11 +18,9 @@ const register = async (req, res) => {
     const { name, username, email, phone, password } = req.body;
 
     if (!name || !username || !email || !phone || !password) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "All fields (name, username, email, phone, password) are required",
-      });
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
     // Check if user already exists
@@ -31,16 +29,18 @@ const register = async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "User already Registered !",
-      });
-    }
+      if (existingUser.isVerified) {
+        return res
+          .status(400)
+          .json({ success: false, message: "User already Registered!" });
+      }
+      // unverified — delete and let them re-register
+      await UserModel.findByIdAndDelete(existingUser._id);
+    } // ← existingUser block ends here
 
     const otpCred = generateOtp();
 
-    //DB first → Email second → rollback on failure
-    const newUser = await UserModel.create({
+    newUser = await UserModel.create({
       name,
       username,
       email,
@@ -51,8 +51,6 @@ const register = async (req, res) => {
       otpExpire: otpCred.expire,
     });
 
-    // Send OTP email
-
     try {
       await sendEmail({
         email: newUser.email,
@@ -61,7 +59,12 @@ const register = async (req, res) => {
       });
     } catch (err) {
       await UserModel.findByIdAndDelete(newUser._id);
-      throw err;
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: "Failed to send verification email. Try again.",
+        });
     }
 
     return res.status(201).json({
@@ -70,19 +73,18 @@ const register = async (req, res) => {
       data: { _id: newUser._id, email: newUser.email },
     });
   } catch (error) {
+    if (newUser?._id) await UserModel.findByIdAndDelete(newUser._id);
     if (error.name === "ValidationError") {
       return res.status(400).json({
         success: false,
-        message: "Validation Error",
-        error: Object.values(error.errors).map((err) => err.message),
+        message: Object.values(error.errors)
+          .map((err) => err.message)
+          .join(", "),
       });
     }
-    // console.error("Registration error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -96,8 +98,10 @@ const login = async (req, res) => {
   const { email, phone, password } = req.body;
 
   try {
-    if ((!email || !phone) && !password ) {
-      return res.status(400).json({ message: "Required : email or phone and password " });
+    if ((!email || !phone) && !password) {
+      return res
+        .status(400)
+        .json({ message: "Required : email or phone and password " });
     }
     const user = await UserModel.findOne({ $or: [{ email }, { phone }] });
 
@@ -135,18 +139,18 @@ const login = async (req, res) => {
 
     //acess token here ...
     await setRefreshToken(user._id, res);
-     const accessToken = await getAcessToken(user._id);
+    const accessToken = await getAcessToken(user._id);
 
     return res.status(200).json({
       success: true,
       message: "Login successful",
-      data: {
+      user: {
         _id: user._id,
         name: user.name,
         email: user.email,
         isVerified: user.isVerified,
       },
-      token: `${accessToken}`,
+      accessToken,
     });
   } catch (err) {
     console.log(err);
@@ -243,12 +247,12 @@ const refresh = async (req, res) => {
       });
     }
 
-    const token = getAcessToken(decoded.userId);
+    const accessToken = getAcessToken(decoded.userId);
 
     return res.status(200).json({
       success: true,
-      message: "TokenRefreshed successfully",
-      token,
+      message: "Token Refreshed successfully",
+      accessToken,
     });
   } catch (error) {
     return res.status(401).json({
