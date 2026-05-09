@@ -59,12 +59,10 @@ const register = async (req, res) => {
       });
     } catch (err) {
       await UserModel.findByIdAndDelete(newUser._id);
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: "Failed to send verification email. Try again.",
-        });
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send verification email. Try again.",
+      });
     }
 
     return res.status(201).json({
@@ -99,20 +97,25 @@ const login = async (req, res) => {
 
   try {
     if ((!email || !phone) && !password) {
-      return res
-        .status(400)
-        .json({ message: "Required : email or phone and password " });
+      return res.status(400).json({
+        success: false,
+        message: "Required : email or phone and password ",
+      });
     }
     const user = await UserModel.findOne({ $or: [{ email }, { phone }] });
 
     if (!user) {
-      return res.status(404).json({ message: "User not founded" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not founded" });
     }
 
     const isValidPassword = await user.comparePassword(password);
 
     if (!isValidPassword) {
-      return res.status(401).json({ message: "Incorrect Password" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Incorrect Password" });
     }
 
     // Check verification status
@@ -155,6 +158,7 @@ const login = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({
+      success: false,
       message: "Internal server error",
       err: err.message,
     });
@@ -166,26 +170,36 @@ const verify = async (req, res) => {
 
   try {
     if (!otp || !userId) {
-      return res.status(400).json({ message: "otp and userId required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "otp and userId required" });
     }
     const user = await UserModel.findById(userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
     // console.log(use)
     const isOtpValid = user.otp === otp && user.otpExpire > Date.now();
     if (!isOtpValid) {
-      return res.status(401).json({ message: "Invalid or Expire OTP" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid or Expire OTP" });
     }
     user.otp = null;
     user.otpExpire = null;
     user.isVerified = true;
     await user.save();
-    res.status(200).json({ message: "Email verified successfully" });
-  } catch (err) {
     res
-      .status(500)
-      .json({ message: "Internal server error", error: err.message });
+      .status(200)
+      .json({ success: true, message: "Email verified successfully" });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: err.message,
+    });
   }
 };
 
@@ -196,7 +210,7 @@ const logout = async (req, res) => {
     if (!refreshToken) {
       return res
         .status(400)
-        .json({ success: false, msg: "Already logged out." });
+        .json({ success: false, message: "Already logged out." });
     }
 
     // Remove refresh token from DB
@@ -211,10 +225,10 @@ const logout = async (req, res) => {
 
     return res
       .status(200)
-      .json({ success: true, msg: "Logged out successfully." });
+      .json({ success: true, message: "Logged out successfully." });
   } catch (err) {
     console.error("Logout error:", err.message);
-    return res.status(500).json({ success: false, msg: "Logout failed." });
+    return res.status(500).json({ success: false, message: "Logout failed." });
   }
 };
 
