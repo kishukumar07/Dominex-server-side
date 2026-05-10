@@ -3,6 +3,8 @@ import generateOtp from "../utils/auth/generateOtp.js";
 import sendmail from "../utils/mail/mailer.js";
 import mongoose from "mongoose";
 
+
+
 const userProfile = async (req, res) => {
   const userid = req.params.id;
 

@@ -96,7 +96,7 @@ const login = async (req, res) => {
   const { email, phone, password } = req.body;
 
   try {
-    if ((!email || !phone) && !password) {
+    if ((!email && !phone) || !password) {
       return res.status(400).json({
         success: false,
         message: "Required : email or phone and password ",
@@ -262,11 +262,16 @@ const refresh = async (req, res) => {
     }
 
     const accessToken = getAcessToken(decoded.userId);
+    // fetch user
+    const user = await UserModel.findById(decoded.userId).select(
+      "-password -otp -otpExpire",
+    );
 
     return res.status(200).json({
       success: true,
       message: "Token Refreshed successfully",
       accessToken,
+      user,
     });
   } catch (error) {
     return res.status(401).json({

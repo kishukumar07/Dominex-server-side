@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import env from "dotenv";
+import cookieParser from "cookie-parser";
 env.config();
 
 import http from "http";
@@ -19,6 +20,7 @@ import { setupSocket } from "./src/sockets/socket.js";
 
 //instance of express
 const app = express();
+app.use(cookieParser());
 
 //HTTP server using Express app
 const server = http.createServer(app);

@@ -28,6 +28,7 @@ openai
 
 # ─── Environment & Config ────────────────────────────────────
 dotenv
+cookie-parser
 
 # ─── Built-in Node Modules (no install needed) ───────────────
 # crypto
