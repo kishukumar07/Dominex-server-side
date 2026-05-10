@@ -1,20 +1,17 @@
-import { Router } from "express";
-import {
-  register,
-  login,
-  logout,
-  refresh,
-} from "../controllers/authController.js";
+import { Router }  from "express";
+import { register,login,logout,refresh} from "../controllers/authController.js";
 import { verify } from "../controllers/authController.js";
-import authMiddleware from "../middlewares/auth.middleware.js";
+import authMiddleware from '../middlewares/auth.middleware.js'
 // import authRoute from '../routes/'
 
-const router = Router();
+const router=Router(); 
 
-router.post("/register", register);
-router.post("/verifyOtp", verify);
-router.post("/login", login);
-router.post("/logout", authMiddleware, logout);
-router.post("/refresh", refresh);
+
+router.post('/register',register); 
+router.post("/verifyOtp",verify);
+router.post('/login',login); 
+router.post('/logout',authMiddleware,logout);  
+router.get('/refresh',refresh); 
 
 export default router;
+             
