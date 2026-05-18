@@ -150,8 +150,11 @@ const login = async (req, res) => {
       user: {
         _id: user._id,
         name: user.name,
+        username: user.username,
         email: user.email,
         isVerified: user.isVerified,
+        profilePic: user.profilePic,
+        // https://img.icons8.com/?size=100&id=tZuAOUGm9AuS&format=png&color=000000
       },
       accessToken,
     });

@@ -77,7 +77,8 @@ const UserSchema = new mongoose.Schema(
     },
     profilePic: {
       type: String,
-      default: "default-profile.png",
+      default:
+        "https://img.icons8.com/?size=100&id=tZuAOUGm9AuS&format=png&color=000000",
     },
     bannerPic: {
       type: String,
@@ -92,15 +93,15 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-   otp: {
-  type: String,
-  validate: {
-    validator: function (v) {
-      return !v || /^\d{6}$/.test(v);
+    otp: {
+      type: String,
+      validate: {
+        validator: function (v) {
+          return !v || /^\d{6}$/.test(v);
+        },
+        message: "OTP must be a 6-digit number",
+      },
     },
-    message: "OTP must be a 6-digit number",
-  },
-},
     otpExpire: {
       type: Date,
     },
@@ -177,7 +178,7 @@ const UserSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 //  Pre-save middleware for hashing password

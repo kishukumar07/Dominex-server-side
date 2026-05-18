@@ -48,7 +48,7 @@ const getAllPosts = async (req, res) => {
   try {
     // Default values for pagination
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
 
     // Get total count for pagination info
@@ -59,7 +59,8 @@ const getAllPosts = async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("author", "username email"); //adjust fields as needed
+      .populate("author", "_id name username profilePic") //adjust fields as needed
+      .populate("likes", "profilePic username");
 
     res.status(200).json({
       data: posts,
@@ -92,7 +93,173 @@ const getPostById = async (req, res) => {
   }
 
   try {
-    const post = await PostModel.findById(post_Id);
+    const post = await PostModel.aggregate([
+      // 1. Match the post
+      { $match: { _id: new mongoose.Types.ObjectId(post_Id) } },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "author",
+          foreignField: "_id",
+          as: "author",
+        },
+      },
+      { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
+
+      // 2. Lookup top-level comments
+      {
+        $lookup: {
+          from: "comments",
+          localField: "comment",
+          foreignField: "_id",
+          as: "comments",
+        },
+      },
+
+      // 3. Unwind comments
+      { $unwind: { path: "$comments", preserveNullAndEmptyArrays: true } },
+
+      // 4. Lookup comment author
+      {
+        $lookup: {
+          from: "users",
+          localField: "comments.author",
+          foreignField: "_id",
+          as: "comments.author",
+        },
+      },
+      {
+        $unwind: { path: "$comments.author", preserveNullAndEmptyArrays: true },
+      },
+
+      // 5. graphLookup — recursive subcomments from same comments collection
+      {
+        $graphLookup: {
+          from: "comments",
+          startWith: "$comments.subComment",
+          connectFromField: "subComment",
+          connectToField: "_id",
+          as: "comments.allSubComments",
+          maxDepth: 5,
+          depthField: "depth",
+        },
+      },
+
+      // 6. Unwind subcomments
+      {
+        $unwind: {
+          path: "$comments.allSubComments",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // 7. Lookup subcomment author
+      {
+        $lookup: {
+          from: "users",
+          localField: "comments.allSubComments.author",
+          foreignField: "_id",
+          as: "comments.allSubComments.author",
+        },
+      },
+      {
+        $unwind: {
+          path: "$comments.allSubComments.author",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // 8. Re-group subcomments back into each comment
+      {
+        $group: {
+          _id: {
+            postId: "$_id",
+            commentId: "$comments._id",
+          },
+          root: { $first: "$$ROOT" },
+          comment: { $first: "$comments" },
+          allSubComments: {
+            $push: {
+              $cond: {
+                if: { $ifNull: ["$comments.allSubComments._id", false] },
+                then: "$comments.allSubComments",
+                else: "$$REMOVE",
+              },
+            },
+          },
+        },
+      },
+
+      // 9. Attach subcomments back to comment
+      {
+        $addFields: {
+          "comment.allSubComments": "$allSubComments",
+        },
+      },
+
+      // 10. Re-group all comments back into post
+      {
+        $group: {
+          _id: "$_id.postId",
+          root: { $first: "$root" },
+          comments: { $push: "$comment" },
+        },
+      },
+
+      // 11. Attach comments to root
+      {
+        $addFields: {
+          "root.comments": "$comments",
+        },
+      },
+
+      // 12. Replace root
+      { $replaceRoot: { newRoot: "$root" } },
+
+      // 13. Final project — shape everything cleanly here
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          photo: 1,
+          likes: 1,
+          createdAt: 1,
+          author: {
+            _id: 1,
+            name: 1,
+            username: 1,
+            profilePic: 1,
+          },
+          comments: {
+            _id: 1,
+            content: 1,
+            likes: 1,
+            createdAt: 1,
+            author: {
+              _id: 1,
+              name: 1,
+              username: 1,
+              profilePic: 1,
+            },
+            allSubComments: {
+              _id: 1,
+              content: 1,
+              likes: 1,
+              parentComment: 1,
+              depth: 1,
+              createdAt: 1,
+              author: {
+                _id: 1,
+                name: 1,
+                username: 1,
+                profilePic: 1,
+              },
+            },
+          },
+        },
+      },
+    ]);
 
     if (!post) {
       return res.status(404).json({
@@ -210,7 +377,7 @@ const updatePost = async (req, res) => {
     }
 
     // Authorization: only author can update
-   
+
     if (!post.author.equals(userId)) {
       return res.status(403).json({ success: false, msg: "Unauthorized" });
     }
