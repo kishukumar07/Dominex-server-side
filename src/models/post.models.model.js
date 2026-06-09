@@ -9,7 +9,7 @@ const postSchema = new mongoose.Schema(
     title: {
       type: String,
       trim: true,
-      maxLength: 500,
+      maxLength: 2000,
     },
     photo: {
       type: String, // e.g., "uploads/images/abc.png" or Cloudinary URL
@@ -30,7 +30,7 @@ const postSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 const PostModel = mongoose.model("Post", postSchema);

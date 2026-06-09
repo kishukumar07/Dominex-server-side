@@ -66,6 +66,4 @@ router.patch("/:id", authenticate, updateUserInfo);
  */
 router.patch("/:id/password", authenticate, updatePassword);
 
-
-
 export default router;

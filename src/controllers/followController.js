@@ -16,7 +16,7 @@ const followUser = async (req, res) => {
 
     const currentUser = await UserModel.findById(currentUserId);
     const targetUser = await UserModel.findById(targetUserId);
-    
+
     if (!currentUser || !targetUser) {
       return res.status(404).json({ msg: "User not found" });
     }
@@ -31,8 +31,9 @@ const followUser = async (req, res) => {
       await targetUser.save();
     }
 
-    res.send("Followed successfully");
+    res.status(200).json({ message: "Followed successfully", success: true });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ success: false, err: err.message });
   }
 };
@@ -49,7 +50,7 @@ const unfollowUser = async (req, res) => {
     }
     const currentUser = await UserModel.findById(currentUserId);
     const targetUser = await UserModel.findById(targetUserId);
-    
+
     if (!currentUser || !targetUser) {
       return res.status(404).json({ msg: "User not found" });
     }
@@ -63,7 +64,7 @@ const unfollowUser = async (req, res) => {
     await currentUser.save();
     await targetUser.save();
 
-    res.send("Unfollowed successfully");
+    res.status(200).json({ message: "Unfollowed successfully", success: true });
   } catch (err) {
     res.status(500).json({ success: false, err: err.message });
   }
@@ -80,10 +81,9 @@ const isMutualFollow = async (userId1, userId2) => {
 
     return user1Follows && user2Follows;
   } catch (err) {
-    console.error("isMutualFollow error:", err.message)
+    console.error("isMutualFollow error:", err.message);
     return false;
   }
-  
 };
 
 export { followUser, unfollowUser, isMutualFollow };

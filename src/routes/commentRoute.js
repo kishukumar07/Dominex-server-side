@@ -18,7 +18,7 @@ router.post("/", authenticate, createComment);
 router.post("/:id/reply", authenticate, createReplyComment);
 
 // Update a comment
-router.put("/:id", authenticate, updateComment);
+router.patch("/:id", authenticate, updateComment);
 
 // Delete a comment
 router.delete("/:id", authenticate, deleteComment); //also being deleted from parent comment list ..have to do this task ...

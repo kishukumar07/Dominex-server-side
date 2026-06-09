@@ -15,7 +15,7 @@ const createPost = async (req, res) => {
     }
     // console.log(uploaded.url);
     // we will post this url in place of pics....
-    const title = req.title;
+    const title = req.body.title;
     const photo = uploaded.url;
     const author = req.userId;
 
@@ -37,13 +37,14 @@ const createPost = async (req, res) => {
       { new: true },
     );
 
-    return res.status(201).json(newPost);
+    return res.status(201).json({ success: true, newPost });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "Failed to create post" });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
+//random post output {Needed : Randomization }
 const getAllPosts = async (req, res) => {
   try {
     // Default values for pagination
@@ -63,7 +64,8 @@ const getAllPosts = async (req, res) => {
       .populate("likes", "profilePic username");
 
     res.status(200).json({
-      data: posts,
+      success: true,
+      posts,
       page,
       totalPages: Math.ceil(totalPosts / limit),
       totalPosts,
@@ -74,6 +76,7 @@ const getAllPosts = async (req, res) => {
   }
 }; //pagination
 
+//like ->populate
 const getPostById = async (req, res) => {
   const post_Id = req.params.id;
 
@@ -106,6 +109,25 @@ const getPostById = async (req, res) => {
         },
       },
       { $unwind: { path: "$author", preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          likes: {
+            $map: {
+              input: "$likes",
+              as: "likeId",
+              in: { $toObjectId: "$$likeId" },
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "likes",
+          foreignField: "_id",
+          as: "likes",
+        },
+      },
 
       // 2. Lookup top-level comments
       {
@@ -223,7 +245,12 @@ const getPostById = async (req, res) => {
           _id: 1,
           title: 1,
           photo: 1,
-          likes: 1,
+          likes: {
+            _id: 1,
+            name: 1,
+            username: 1,
+            profilePic: 1,
+          },
           createdAt: 1,
           author: {
             _id: 1,
@@ -261,6 +288,8 @@ const getPostById = async (req, res) => {
       },
     ]);
 
+    // console.log(post);
+
     if (!post) {
       return res.status(404).json({
         success: false,
@@ -295,7 +324,10 @@ const getUserPosts = async (req, res) => {
   }
 
   try {
-    const userPosts = await PostModel.find({ author: u_id });
+    const userPosts = await PostModel.find({ author: u_id }).populate(
+      "author",
+      "profilePic username name",
+    );
 
     if (userPosts.length === 0) {
       return res
@@ -323,6 +355,8 @@ const toggleLike = async (req, res) => {
         msg: "Invalid PostID",
       });
     }
+
+    // console.log("checking client response ");
 
     const post = await PostModel.findById(post_Id);
     // Check if Post Exists.

@@ -3,8 +3,6 @@ import generateOtp from "../utils/auth/generateOtp.js";
 import sendmail from "../utils/mail/mailer.js";
 import mongoose from "mongoose";
 
-
-
 const userProfile = async (req, res) => {
   const userid = req.params.id;
 
@@ -30,7 +28,10 @@ const userProfile = async (req, res) => {
       followers: 1,
       followings: 1,
       posts: 1,
-    });
+    })
+      .populate("followers", "name username profilePic")
+      .populate("followings", "name username profilePic")
+      .lean();
 
     if (!user) {
       return res
