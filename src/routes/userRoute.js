@@ -24,7 +24,8 @@ router.patch("/requestResetEmail", requestResetEmail);
  * @desc Reset password with OTP
  * @access Public (only with valid OTP)
  */
-router.patch("/:id/passwordReset", resetPassword);
+//changes need here  sending email via req.body
+router.patch("/passwordReset", resetPassword);
 
 /**
  * @route PATCH /api/user/updateEmail

@@ -183,6 +183,13 @@ const requestResetEmail = async (req, res) => {
     user.otpExpire = otpData.expire;
     await user.save();
 
+    if (!user.email) {
+      return res.status(400).json({
+        success: false,
+        msg: "No email registered with account",
+      });
+    }
+
     const emailType = "RESET_PASSWORD";
     const info = await sendmail({
       email: user.email,
@@ -192,12 +199,14 @@ const requestResetEmail = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      msg: "OTP Sent to Registered Email use it to reset your password ",
+      msg: "OTP Sent to Registered Email.",
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ success: false, msg: "Server error", error: err.message });
+    return res.status(500).json({
+      success: false,
+      msg: "Please try again ! Server Error... ",
+      error: err.message,
+    });
   }
 };
 
@@ -209,14 +218,15 @@ const resetPassword = async (req, res) => {
     });
   }
 
-  const { otp, newPassword } = req.body;
-  const userId = req.params.id;
-  // console.log(req.params);
+  const { otp, newPassword, email } = req.body;
+
   if (!otp) {
     return res.status(400).json({ success: false, msg: "otp is required" });
   }
-  if (!userId) {
-    return res.status(400).json({ success: false, msg: "User ID is required" });
+  if (!email) {
+    return res
+      .status(400)
+      .json({ success: false, msg: "Registered Email  required" });
   }
   if (!newPassword) {
     return res
@@ -225,11 +235,14 @@ const resetPassword = async (req, res) => {
   }
 
   try {
-    const user = await UserModel.findById(userId);
+    const user = await UserModel.findOne({ email }); //this query should need a check !
     if (!user)
-      return res.status(404).json({ success: false, msg: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, msg: "Enter Registered Email" });
 
-    const isVerified = otp === user.otp && user.otpExpire > Date.now();
+    const isVerified =
+      String(otp) === String(user.otp) && user.otpExpire > Date.now();
     if (!isVerified)
       return res
         .status(400)
@@ -244,9 +257,6 @@ const resetPassword = async (req, res) => {
     res.status(200).json({
       success: true,
       msg: "Password reset successful",
-      data: {
-        newPassword,
-      },
     });
   } catch (err) {
     res.status(500).json({

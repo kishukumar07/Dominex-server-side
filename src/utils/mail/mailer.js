@@ -9,6 +9,8 @@ const sendEmail = async ({ email, emailType, val }) => {
       // service:"smtp.gmail.com",
       host: process.env.EMAIL_PROVIDER,
       port: process.env.EMAIL_PORT,
+      port: parseInt(process.env.EMAIL_PORT, 10), //  Fix 1: Must convert string "587" to an integer
+      secure: false, // Fix 2: Must be false for port 587 (uses STARTTLS)
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD,
