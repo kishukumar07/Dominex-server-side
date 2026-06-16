@@ -17,10 +17,8 @@ export const setRefreshToken = async(id, res) => {
   const options = {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     httpOnly: true,
-    secure: isProduction,               
-    sameSite: isProduction ? 'None' : 'Lax',
-    domain: isProduction ? '.giftginnie.in' : undefined
-
+    secure: true,               
+    sameSite: 'None' ,
   };
     await RefTokenModel.create({
        token: token,
