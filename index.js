@@ -5,7 +5,6 @@ import cookieParser from "cookie-parser";
 env.config();
 
 import http from "http";
-
 import connectDB from "./src/config/db.config.js";
 
 import authRoute from "./src/routes/authRoute.js";
@@ -18,24 +17,20 @@ import msgRoute from "./src/routes/msgRoute.js";
 
 import { setupSocket } from "./src/sockets/socket.js";
 
-//instance of express
 const app = express();
-app.use(cookieParser());
 
-//HTTP server using Express app
 const server = http.createServer(app);
-// start socket on same server
 setupSocket(server);
 
 app.get("/", (req, res) => {
   res.status(200).send("talking with Server...");
 });
 
-const PORT = process.env.PORT;
-
+const PORT = process.env.PORT || 5000; // Good fallback practice
 const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:3000"];
 
-//middlewares
+app.use(cookieParser());
+
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -50,9 +45,8 @@ app.use(
 );
 
 app.use(express.json({ limit: "20mb" }));
-app.use(express.urlencoded({ encoded: true, limit: "5mb" }));
+app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
-//Routes
 app.use("/api/auth", authRoute);
 app.use("/users", userRoute);
 app.use("/posts", postRoute);
@@ -60,7 +54,7 @@ app.use("/stories", storyRoute);
 app.use("/comments", commentRoute);
 app.use("/follow", followRoute);
 app.use("/msg", msgRoute);
-//Handle invalid JSON error //  Error handler is last
+
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     console.error("Invalid JSON received:", err.message);
@@ -68,13 +62,11 @@ app.use((err, req, res, next) => {
       .status(400)
       .json({ message: "Invalid JSON format in request body" });
   }
-
-  next(err); // pass to next error handler
+  next(err);
 });
 
-//server
+// Server boot
 server.listen(PORT, () => {
   console.log(`Server is running at PORT : ${PORT}`);
-
   connectDB();
 });
