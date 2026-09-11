@@ -9,7 +9,6 @@ const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 /**
  * Save a new message to the database.
  * Used by both Socket (live send) and HTTP controller.
- *
  * @returns { success, message, error }
  */
 export const saveMessage = async ({ senderId, receiverId, content }) => {

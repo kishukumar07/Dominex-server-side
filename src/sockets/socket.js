@@ -1,7 +1,11 @@
 // src/sockets/socket.js
 
 import { Server } from "socket.io";
-import { saveMessage, getConversation, markMessagesAsSeen } from "../services/message.service.js";
+import {
+  saveMessage,
+  getConversation,
+  markMessagesAsSeen,
+} from "../services/message.service.js";
 import { isMutualFollow } from "../controllers/followController.js";
 import getBotResponse from "../chatBot/botProvider.js";
 
@@ -38,7 +42,10 @@ export const setupSocket = (server) => {
         if (!isBot) {
           const mutual = await isMutualFollow(senderId, receiverId);
           if (!mutual) {
-            return socket.emit("error", " Both users must follow each other to chat.");
+            return socket.emit(
+              "error",
+              " Both users must follow each other to chat.",
+            );
           }
         }
 
@@ -46,14 +53,19 @@ export const setupSocket = (server) => {
         await markMessagesAsSeen(receiverId, senderId);
 
         // Load last 30 messages
-        const { success, messages, error } = await getConversation(senderId, receiverId, 30);
+        const { success, messages, error } = await getConversation(
+          senderId,
+          receiverId,
+          30,     // dont you think this is hardcoded yet ...!
+        );
         if (!success) {
           return socket.emit("error", error);
         }
 
         // Bot: send welcome message if no history yet
         if (isBot && messages.length === 0) {
-          const welcomeText = "Hey! I'm your assistant 🤖. How can I help you today?";
+          const welcomeText =
+            "Hey! I'm your assistant 🤖. How can I help you today?";
           const saved = await saveMessage({
             senderId: BOT_USER_ID,
             receiverId: senderId,
@@ -81,46 +93,53 @@ export const setupSocket = (server) => {
     // 1. Saves user message to DB
     // 2. Broadcasts to room
     // 3. If bot room: gets AI reply, saves it, broadcasts it
-    socket.on("sendMessage", async ({ roomId, senderId, receiverId, message }) => {
-      try {
-        if (!roomId || !senderId || !receiverId || !message) {
-          return socket.emit("error", "Missing required fields.");
-        }
-
-        // Save and broadcast user's message
-        const saved = await saveMessage({ senderId, receiverId, content: message });
-        if (!saved.success) {
-          return socket.emit("error", saved.error);
-        }
-
-        io.to(roomId).emit("receiveMessage", saved.message);
-
-        // If talking to bot, generate and send AI reply
-        const isBot = receiverId === BOT_USER_ID;
-        if (isBot) {
-          const botReplyObj = await getBotResponse(message);
-
-          const botText = botReplyObj?.success
-            ? botReplyObj.reply
-            : " Sorry, I couldn't process that. Please try again.";
-
-          const savedBotMsg = await saveMessage({
-            senderId: BOT_USER_ID,
-            receiverId: senderId,
-            content: botText,
-          });
-
-          if (!savedBotMsg.success) {
-            return socket.emit("error", "Bot reply could not be saved.");
+    socket.on(
+      "sendMessage",
+      async ({ roomId, senderId, receiverId, message }) => {
+        try {
+          if (!roomId || !senderId || !receiverId || !message) {
+            return socket.emit("error", "Missing required fields.");
           }
 
-          io.to(roomId).emit("receiveMessage", savedBotMsg.message);
+          // Save and broadcast user's message
+          const saved = await saveMessage({
+            senderId,
+            receiverId,
+            content: message,
+          });
+          if (!saved.success) {
+            return socket.emit("error", saved.error);
+          }
+
+          io.to(roomId).emit("receiveMessage", saved.message);
+
+          // If talking to bot, generate and send AI reply
+          const isBot = receiverId === BOT_USER_ID;
+          if (isBot) {
+            const botReplyObj = await getBotResponse(message);
+
+            const botText = botReplyObj?.success
+              ? botReplyObj.reply
+              : " Sorry, I couldn't process that. Please try again.";
+
+            const savedBotMsg = await saveMessage({
+              senderId: BOT_USER_ID,
+              receiverId: senderId,
+              content: botText,
+            });
+
+            if (!savedBotMsg.success) {
+              return socket.emit("error", "Bot reply could not be saved.");
+            }
+
+            io.to(roomId).emit("receiveMessage", savedBotMsg.message);
+          }
+        } catch (err) {
+          console.error("sendMessage error:", err.message);
+          socket.emit("error", " Failed to send message. Try again.");
         }
-      } catch (err) {
-        console.error("sendMessage error:", err.message);
-        socket.emit("error", " Failed to send message. Try again.");
-      }
-    });
+      },
+    );
 
     // ─── LOAD MORE MESSAGES (scroll up / pagination) ──────────────────────────
     // Called when the user scrolls up in a chat window to load older messages.
@@ -128,14 +147,17 @@ export const setupSocket = (server) => {
     socket.on("loadMore", async ({ userId1, userId2, before }) => {
       try {
         if (!before) {
-          return socket.emit("error", "Cursor (before) is required for loadMore.");
+          return socket.emit(
+            "error",
+            "Cursor (before) is required for loadMore.",
+          );
         }
 
         const { success, messages, hasMore, error } = await getConversation(
           userId1,
           userId2,
           30,
-          before
+          before,
         );
 
         if (!success) {

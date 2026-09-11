@@ -22,3 +22,4 @@ const upload = multer({
 }); // 10MB
 
 export default upload;
+      

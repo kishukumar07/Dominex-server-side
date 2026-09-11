@@ -75,6 +75,9 @@ const UserSchema = new mongoose.Schema(
         message: "Please enter a valid URL",
       },
     },
+    // location: {
+    //   type: String,
+    // },
     profilePic: {
       type: String,
       default:

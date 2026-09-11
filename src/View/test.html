@@ -9,7 +9,7 @@
       body {
         font-family: Arial, sans-serif;
         margin: 20px;
-      }
+      }      
       #chat-box {
         border: 1px solid #ccc;
         padding: 10px;
@@ -49,7 +49,7 @@
 
       function startChat() {
         
-        // 🧼 Clear previous listeners to prevent duplication
+        // Clear previous listeners to prevent duplication
         socket.off("roomJoined");
         socket.off("oldMessages");
         socket.off("receiveMessage");
@@ -124,7 +124,6 @@ function displayMessage(msg) {
   chatBox.appendChild(msgEl);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
-
 
     </script>
   </body>

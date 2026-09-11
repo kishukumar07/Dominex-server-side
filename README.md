@@ -6,16 +6,16 @@
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Runtime | Node.js (ESM) |
-| Framework | Express.js |
-| Database | MongoDB + Mongoose |
-| Real-time | Socket.io |
-| Auth | JWT + Bcrypt |
-| Media | Cloudinary + Multer |
-| Email | Nodemailer (Gmail / Mailtrap) |
-| AI Bot | Gemini AI / OpenAI (switchable) |
+| Layer     | Technology                      |
+| --------- | ------------------------------- |
+| Runtime   | Node.js (ESM)                   |
+| Framework | Express.js                      |
+| Database  | MongoDB + Mongoose              |
+| Real-time | Socket.io                       |
+| Auth      | JWT + Bcrypt                    |
+| Media     | Cloudinary + Multer             |
+| Email     | Nodemailer (Gmail / Mailtrap)   |
+| AI Bot    | Gemini AI / OpenAI (switchable) |
 
 ---
 
@@ -149,63 +149,69 @@ npm start
 ## API Overview
 
 ### Auth
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/auth/register` | Register + send OTP |
-| POST | `/api/auth/verify` | Verify OTP |
-| POST | `/api/auth/login` | Login |
-| POST | `/api/auth/logout` | Logout |
-| POST | `/api/auth/refresh` | GetAcessToken via Ref. Token |
+
+| Method | Endpoint             | Description                  |
+| ------ | -------------------- | ---------------------------- |
+| POST   | `/api/auth/register` | Register + send OTP          |
+| POST   | `/api/auth/verify`   | Verify OTP                   |
+| POST   | `/api/auth/login`    | Login                        |
+| POST   | `/api/auth/logout`   | Logout                       |
+| POST   | `/api/auth/refresh`  | GetAcessToken via Ref. Token |
 
 ### Users
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/user/:id` | Get user profile |
-| PATCH | `/api/user/update` | Update profile |
+
+| Method | Endpoint           | Description      |
+| ------ | ------------------ | ---------------- |
+| GET    | `/api/user/:id`    | Get user profile |
+| PATCH  | `/api/user/update` | Update profile   |
 
 ### Posts
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/post` | Get all posts (paginated) |
-| POST | `/api/post/create` | Create post |
-| GET | `/api/post/user/:userId` | Get user posts |
-| GET | `/api/post/:id` | Get post by ID |
-| PATCH | `/api/post/:id` | Update post |
-| DELETE | `/api/post/:id` | Delete post |
+
+| Method | Endpoint                 | Description               |
+| ------ | ------------------------ | ------------------------- |
+| GET    | `/api/post`              | Get all posts (paginated) |
+| POST   | `/api/post/create`       | Create post               |
+| GET    | `/api/post/user/:userId` | Get user posts            |
+| GET    | `/api/post/:id`          | Get post by ID            |
+| PATCH  | `/api/post/:id`          | Update post               |
+| DELETE | `/api/post/:id`          | Delete post               |
 
 ### Stories
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/story/create` | Create story |
-| GET | `/api/story/user/:userId` | Get user stories |
-| PATCH | `/api/story/:id` | Mark story as viewed |
-| DELETE | `/api/story/:id` | Delete story |
+
+| Method | Endpoint                  | Description          |
+| ------ | ------------------------- | -------------------- |
+| POST   | `/api/story/create`       | Create story         |
+| GET    | `/api/story/user/:userId` | Get user stories     |
+| PATCH  | `/api/story/:id`          | Mark story as viewed |
+| DELETE | `/api/story/:id`          | Delete story         |
 
 ### Messages
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/messages/:userId1/:userId2` | Get conversation history |
+
+| Method | Endpoint                          | Description              |
+| ------ | --------------------------------- | ------------------------ |
+| GET    | `/api/messages/:userId1/:userId2` | Get conversation history |
 
 ### Follow
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/follow/:id` | Follow user |
-| POST | `/api/unfollow/:id` | Unfollow user |
+
+| Method | Endpoint            | Description   |
+| ------ | ------------------- | ------------- |
+| POST   | `/api/follow/:id`   | Follow user   |
+| POST   | `/api/unfollow/:id` | Unfollow user |
 
 ---
 
 ## Real-time Socket Events
 
-| Event | Direction | Description |
-|---|---|---|
-| `joinRoom` | Client → Server | Join a chat room |
-| `roomJoined` | Server → Client | Confirm room joined |
-| `oldMessages` | Server → Client | Load recent messages |
-| `sendMessage` | Client → Server | Send a message |
-| `receiveMessage` | Server → Client | Receive a message |
-| `loadMore` | Client → Server | Load older messages (scroll up) |
-| `olderMessages` | Server → Client | Paginated older messages |
-| `error` | Server → Client | Error response |
+| Event            | Direction       | Description                     |
+| ---------------- | --------------- | ------------------------------- |
+| `joinRoom`       | Client → Server | Join a chat room                |
+| `roomJoined`     | Server → Client | Confirm room joined             |
+| `oldMessages`    | Server → Client | Load recent messages            |
+| `sendMessage`    | Client → Server | Send a message                  |
+| `receiveMessage` | Server → Client | Receive a message               |
+| `loadMore`       | Client → Server | Load older messages (scroll up) |
+| `olderMessages`  | Server → Client | Paginated older messages        |
+| `error`          | Server → Client | Error response                  |
 
 ---
 
@@ -230,6 +236,7 @@ See `.env.sample` for the full list with descriptions.
 ## Author
 
 **Kishu Kumar**
+
 - GitHub: [@kishukumar07](https://github.com/kishukumar07)
 
 ---

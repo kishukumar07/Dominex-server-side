@@ -2,6 +2,7 @@ import UserModel from "../models/user.models.model.js";
 import generateOtp from "../utils/auth/generateOtp.js";
 import sendmail from "../utils/mail/mailer.js";
 import mongoose from "mongoose";
+import uploadOnCloudinary from "../utils/media/Upload.on.Cloudinary.js";
 
 const userProfile = async (req, res) => {
   const userid = req.params.id;
@@ -53,6 +54,7 @@ const userProfile = async (req, res) => {
   }
 };
 
+//this is connected to updating the public manually things
 const updateUserInfo = async (req, res) => {
   // console.log(1);
 
@@ -75,8 +77,6 @@ const updateUserInfo = async (req, res) => {
       "name",
       "username",
       "bio",
-      "profilePic",
-      "bannerPic",
       "websiteUrl",
       "gender",
       "dateOfBirth",
@@ -104,6 +104,97 @@ const updateUserInfo = async (req, res) => {
     res
       .status(500)
       .json({ success: false, msg: "Update error", error: err.message });
+  }
+};
+
+//"profilePic"
+const updateProfilePic = async (req, res) => {
+  const givenUserid = req.params.id;
+  const author = req.userId;
+  if (author.toString() !== givenUserid) {
+    return res.status(403).json({
+      success: false,
+      msg: "Not authorized",
+    });
+  }
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const uploaded = await uploadOnCloudinary(req.file.path);
+
+    if (!uploaded || !uploaded.url) {
+      return res.status(500).json({ error: "Failed to upload image" });
+    }
+
+    const user = await UserModel.findByIdAndUpdate(
+      author,
+      { $set: { profilePic: uploaded.url } },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, msg: "User info updated", data: updates });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+//"bannerPic"
+const updateBannerPic = async (req, res) => {
+  const givenUserid = req.params.id;
+  const author = req.userId;
+
+  if (author.toString() !== givenUserid) {
+    return res.status(403).json({
+      success: false,
+      msg: "Not authorized",
+    });
+  }
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const uploaded = await uploadOnCloudinary(req.file.path);
+
+    if (!uploaded || !uploaded.url) {
+      return res.status(500).json({ error: "Failed to upload image" });
+    }
+
+    const user = await UserModel.findByIdAndUpdate(
+      author,
+      { $set: { bannerPic: uploaded.url } },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "User not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, msg: "User info updated", data: updates });
+
+    // console.log(author, bannerUrl);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -377,6 +468,8 @@ const verifyUpdateEmailOtp = async (req, res) => {
 export {
   userProfile,
   updateUserInfo,
+  updateProfilePic,
+  updateBannerPic,
   updatePassword,
   requestResetEmail,
   resetPassword,

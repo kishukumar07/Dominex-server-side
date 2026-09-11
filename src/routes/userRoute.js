@@ -1,8 +1,11 @@
 import { Router } from "express";
+import upload from "../middlewares/multer.middleware.js";
 import {
   userProfile,
   updateUserInfo,
   updatePassword,
+  updateProfilePic,
+  updateBannerPic,
   requestResetEmail,
   resetPassword,
   updateEmail,
@@ -59,6 +62,20 @@ router.get("/profile/:id", authenticate, userProfile);
  * @access Protected
  */
 router.patch("/:id", authenticate, updateUserInfo);
+
+router.patch(
+  "/:id/profile/image",
+  authenticate,
+  upload.single("profile"),
+  updateProfilePic,
+);
+
+router.patch(
+  "/:id/profile/banner",
+  authenticate,
+  upload.single("banner"),
+  updateBannerPic,
+);
 
 /**
  * @route PATCH /api/user/:id/password
