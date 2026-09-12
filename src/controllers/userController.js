@@ -142,9 +142,7 @@ const updateProfilePic = async (req, res) => {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
 
-    res
-      .status(200)
-      .json({ success: true, msg: "User info updated", data: updates });
+    res.status(200).json({ success: true, msg: "User info updated" });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ success: false, message: err.message });
@@ -187,9 +185,7 @@ const updateBannerPic = async (req, res) => {
       return res.status(404).json({ success: false, msg: "User not found" });
     }
 
-    res
-      .status(200)
-      .json({ success: true, msg: "User info updated", data: updates });
+    res.status(200).json({ success: true, msg: "User info updated" });
 
     // console.log(author, bannerUrl);
   } catch (err) {
